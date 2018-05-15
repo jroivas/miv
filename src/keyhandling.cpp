@@ -80,6 +80,8 @@ void KeyHandling::processInsertMode()
         mode = Mode::NormalMode;
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
         Terminal::get()->appendData("\r\n");
+    } else if (lastChar == KEY_BACKSPACE) {
+        Terminal::get()->removeData();
     } else {
         Terminal::get()->appendData(lastChar);
     }

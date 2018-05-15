@@ -163,6 +163,11 @@ void Terminal::appendTemp(char c)
     temp += c;
 }
 
+void Terminal::removeData()
+{
+    data = data.substr(0, data.length() - 1);
+}
+
 void Terminal::removeTemp()
 {
     temp = temp.substr(0, temp.length() - 1);

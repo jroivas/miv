@@ -23,6 +23,7 @@ public:
     void append(char);
     void appendData(std::string);
     void appendData(char);
+    void removeData();
     void appendTemp(std::string s);
     void appendTemp(char c);
     void removeTemp();
