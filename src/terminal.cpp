@@ -7,10 +7,22 @@
 using editor::Terminal;
 
 static struct termios original_termios;
+static Terminal *terminal = nullptr;
 
 #define ESCAPE_KEY "\x1b"
 static const std::string CMD_CLEAR_SCREEN = ESCAPE_KEY "[2J";
 static const std::string CMD_CURSOR_TOPLEFT = ESCAPE_KEY "[H";
+static const std::string CMD_CURSOR_HIDE = ESCAPE_KEY "[?25l";
+static const std::string CMD_CURSOR_SHOW = ESCAPE_KEY "[?25h";
+static const std::string CMD_REMOVE_TILL_END = ESCAPE_KEY "[K";
+
+Terminal* Terminal::get()
+{
+    if (terminal == nullptr) {
+        terminal = new Terminal();
+    }
+    return terminal;
+}
 
 Terminal::Terminal() :
     width(80),
@@ -18,6 +30,12 @@ Terminal::Terminal() :
 {
     getWindowSize();
 }
+
+std::string Terminal::cursorPos(int x, int y)
+{
+    return std::string(ESCAPE_KEY "[") + std::to_string(y) + ";" + std::to_string(x) + "H";
+}
+
 
 void Terminal::enableRawMode()
 {
@@ -56,7 +74,7 @@ void Terminal::setTimeout()
 }
 
 void Terminal::disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) die("Can't restore terminal settings");
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) Terminal::get()->die("Can't restore terminal settings");
 }
 
 void Terminal::die(std::string s) {
@@ -67,12 +85,22 @@ void Terminal::die(std::string s) {
 
 void Terminal::append(std::string s)
 {
-    write(STDOUT_FILENO, s.c_str(), s.length());
+    buffer += s;
 }
 
 void Terminal::append(char c)
 {
-    write(STDOUT_FILENO, &c, 1);
+    buffer += c;
+}
+
+void Terminal::appendData(std::string s)
+{
+    data += s;
+}
+
+void Terminal::appendData(char c)
+{
+    data += c;
 }
 
 void Terminal::clearScreen()
@@ -86,10 +114,15 @@ void Terminal::cursorTopLeft()
     append(CMD_CURSOR_TOPLEFT);
 }
 
+std::string Terminal::cursorLastRow()
+{
+    return cursorPos(1, height);
+}
+
 void Terminal::tildes()
 {
     for (int y = 0; y < height; ++y) {
-        append("~");
+        append("~" + CMD_REMOVE_TILL_END);
         if (y < height - 1) append("\r\n");
     }
     cursorTopLeft();
@@ -103,4 +136,55 @@ void Terminal::getWindowSize()
 
     width = ws.ws_col;
     height = ws.ws_row;
+}
+
+void Terminal::flushBuffer()
+{
+    write(STDOUT_FILENO, buffer.c_str(), buffer.length());
+}
+
+void Terminal::flushData()
+{
+    write(STDOUT_FILENO, data.c_str(), data.length());
+}
+
+void Terminal::flushTemp()
+{
+    write(STDOUT_FILENO, temp.c_str(), temp.length());
+}
+
+void Terminal::appendTemp(std::string s)
+{
+    temp += s;
+}
+
+void Terminal::appendTemp(char c)
+{
+    temp += c;
+}
+
+void Terminal::removeTemp()
+{
+    temp = temp.substr(0, temp.length() - 1);
+}
+
+void Terminal::resetTemp()
+{
+    temp = "";
+}
+
+void Terminal::refresh()
+{
+    buffer = "";
+    append(CMD_CURSOR_HIDE);
+
+    clearScreen();
+    tildes();
+
+    append(CMD_CURSOR_SHOW);
+
+    flushBuffer();
+    cursorTopLeft();
+    flushData();
+    flushTemp();
 }

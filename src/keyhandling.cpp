@@ -2,12 +2,12 @@
 #include "terminal.hh"
 
 #include <unistd.h>
-#include <iostream>
 
 static const char KEY_NONE = 0x0;
 static const char KEY_ENTER = 0xA;
 static const char KEY_RETURN = 0xD;
 static const char KEY_ESC = 0x1b;
+static const char KEY_BACKSPACE = 0x7f;
 
 using editor::KeyHandling;
 
@@ -22,7 +22,7 @@ char KeyHandling::readKey()
     char c = 0;
     int cnt;
     while ((cnt = read(STDIN_FILENO, &c, 1)) != 1) {
-        if (cnt == -1 && errno != EAGAIN) Terminal::die("Read failed");
+        if (cnt == -1 && errno != EAGAIN) Terminal::get()->die("Read failed");
     }
     return c;
 }
@@ -44,7 +44,7 @@ bool KeyHandling::isInsertMode() const
 
 void KeyHandling::executeCommand()
 {
-    std::cout << "STACK: " << stack << "\r\n";
+    //std::cout << "STACK: " << stack << "\r\n";
     if (stack.find('q') != std::string::npos) {
         status = editor::Status::Quit;
     }
@@ -52,15 +52,23 @@ void KeyHandling::executeCommand()
 
 void KeyHandling::processNormalMode()
 {
-    std::cout <<"a " << (int)lastChar << " " << lastChar << "\r\n";
     if (!command && lastChar == ':') {
         command = true;
+        Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
+        Terminal::get()->appendTemp(lastChar);
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
         if (command) executeCommand();
         stack = "";
         command = false;
+        Terminal::get()->resetTemp();
     } else if (command) {
-        stack += lastChar;
+        if (lastChar == KEY_BACKSPACE) {
+            stack = stack.substr(0, stack.length() - 1);
+            Terminal::get()->removeTemp();
+        } else {
+            stack += lastChar;
+            Terminal::get()->appendTemp(lastChar);
+        }
     } else if (lastChar == 'i') {
         mode = Mode::InsertMode;
     }
@@ -69,11 +77,11 @@ void KeyHandling::processNormalMode()
 void KeyHandling::processInsertMode()
 {
     if (lastChar == KEY_ESC) {
-        std::cout << "nn\r\n";
         mode = Mode::NormalMode;
+    } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
+        Terminal::get()->appendData("\r\n");
     } else {
-        Terminal::append(lastChar);
-        //std::cout << lastChar;
+        Terminal::get()->appendData(lastChar);
     }
 }
 
@@ -83,6 +91,9 @@ editor::Status KeyHandling::processKeyPress()
     lastChar = readKey();
     if (lastChar == KEY_NONE) return status;
 
+    /*
+    std::cout << "K " << (int)lastChar << "\r\n";
+    */
     if (isNormalMode()) processNormalMode();
     else if (isInsertMode()) processInsertMode();
 
