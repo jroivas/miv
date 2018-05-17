@@ -17,6 +17,7 @@ public:
     void addLine(std::string line);
     void insertLine(std::string line);
     void updateLine(std::string line);
+    void deleteLine(uint32_t cnt = 1);
     void append(std::string line);
     void append(char line);
     const std::string line() const;
@@ -48,6 +49,10 @@ public:
     static void next() {
         if (buffers.size() == 0) return;
         index = (index + 1) % buffers.size();
+    }
+
+    static Buffer* newBuffer() {
+        return new Buffer();
     }
 
 private:

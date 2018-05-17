@@ -48,6 +48,18 @@ void Buffer::updateLine(std::string line)
     data[posY] = line;
 }
 
+void Buffer::deleteLine(uint32_t cnt)
+{
+    if (cnt == 0) cnt = 1;
+    uint32_t origY = posY;
+    while (cnt > 0 && !data.empty()) {
+        data.erase(data.begin() + posY);
+        if (posY >= data.size()) posY = data.size() - 1;
+        if (posY < origY) break;
+        --cnt;
+    }
+}
+
 const std::string Buffer::line() const
 {
     if (posY >= data.size()) return "";
@@ -80,8 +92,6 @@ void Buffer::cursorDown(uint32_t cnt)
     if (posX >= ll) posX = ll;
 }
 
-#include "terminal.hh"
-
 void Buffer::backspaceChars(uint32_t cnt)
 {
     if (posX == 0) {
@@ -89,7 +99,7 @@ void Buffer::backspaceChars(uint32_t cnt)
         return;    
     }
     std::string l = line();
-    updateLine(substrSafe(l, 0, posX - 1) + substrSafe(l, posX + cnt));
+    updateLine(substrSafe(l, 0, posX - cnt) + substrSafe(l, posX));
 
     if (posX <= cnt) posX = 0;
     else posX -= cnt;
@@ -133,8 +143,5 @@ const std::string Buffer::viewport(uint32_t width, uint32_t height) const
         }
     }
 
-/*
-    for (uint32_t i = 0; i < height; ++j) {
-    }
-*/
+    return res;
 }

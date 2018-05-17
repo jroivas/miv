@@ -55,6 +55,7 @@ void KeyHandling::resetNormalMode()
 {
     stack = "";
     command = false;
+    deleter = false;
     Terminal::get()->resetTemp();
 }
 
@@ -62,10 +63,27 @@ void KeyHandling::processNormalMode()
 {
     if (lastChar == KEY_ESC) {
         resetNormalMode();
-    } else if (!command && lastChar == ':') {
+    } else if (!command && !deleter && lastChar == ':') {
         command = true;
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
+    } else if (deleter) {
+        if (lastChar == 'd') {
+            editor::Buffer::getCurrent()->deleteLine(atoi(stack.c_str()));
+            deleter = false;
+            stack = "";
+        } else if (lastChar == 'l') {
+            editor::Buffer::getCurrent()->deleteChars(atoi(stack.c_str()));
+            deleter = false;
+            stack = "";
+        } else if (lastChar == 'h') {
+            editor::Buffer::getCurrent()->backspaceChars(atoi(stack.c_str()));
+            deleter = false;
+            stack = "";
+        //} else if (lastChar == '$') {
+        } else {
+            stack += lastChar;
+        }
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
         if (command) executeCommand();
         resetNormalMode();
@@ -85,6 +103,8 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->cursorUp();
     } else if (lastChar == 'j') {
         editor::Buffer::getCurrent()->cursorDown();
+    } else if (lastChar == 'd') {
+        deleter = true;
     } else if (lastChar == 'o') {
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();

@@ -37,6 +37,7 @@ private:
 
     std::string stack;
     bool command;
+    bool deleter;
 
     Status status;
 };
