@@ -59,6 +59,7 @@ private:
     std::vector<std::string> data;
     uint32_t posX;
     uint32_t posY;
+    uint32_t row;
     std::string substrSafe(std::string s, std::string::size_type p, std::string::size_type cnt = std::string::npos);
 
     static std::vector<Buffer*> buffers;

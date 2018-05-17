@@ -3,13 +3,13 @@
 
 using editor::Buffer;
 
-//Buffer *Buffer::current = nullptr;
 std::vector<Buffer*> Buffer::buffers;
 uint32_t Buffer::index = 0;
 
 Buffer::Buffer() :
     posX(0),
-    posY(0)
+    posY(0),
+    row(0)
 {
     buffers.push_back(this);
 }
@@ -137,6 +137,7 @@ const std::string Buffer::viewport(uint32_t width, uint32_t height) const
     if (data.size() == 0) return res;
     uint32_t target = std::min<uint32_t>(height, data.size());
     for (uint32_t i = 0; i < target; ++i) {
+        //TODO handle row
         res += data[i];
         if (i < target - 1) {
             res += "\r\n";

@@ -154,7 +154,7 @@ void Terminal::flushBuffer()
 
 void Terminal::flushData()
 {
-    std::string bf = editor::Buffer::getCurrent()->viewport(width, height);
+    std::string bf = editor::Buffer::getCurrent()->viewport(width, height - reservedLinesBottom);
     // FIXME ranges and out of bounds
     bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y() + 1);
     write(STDOUT_FILENO, bf.c_str(), bf.length());
