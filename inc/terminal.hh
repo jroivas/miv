@@ -5,7 +5,8 @@
 
 namespace editor {
 
-class Terminal {
+class Terminal
+{
 
 public:
     static Terminal *get();
@@ -35,6 +36,8 @@ public:
 
     std::string data;
     static std::string cursorPos(int x, int y);
+    void flush();
+
 private:
     Terminal();
 

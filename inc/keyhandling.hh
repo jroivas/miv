@@ -27,8 +27,10 @@ private:
     bool isNormalMode() const;
     bool isInsertMode() const;
     void processNormalMode();
+    void resetNormalMode();
     void processInsertMode();
     void executeCommand();
+
 
     Mode mode;
     char lastChar;

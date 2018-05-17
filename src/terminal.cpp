@@ -16,6 +16,8 @@ static const std::string CMD_CURSOR_HIDE = ESCAPE_KEY "[?25l";
 static const std::string CMD_CURSOR_SHOW = ESCAPE_KEY "[?25h";
 static const std::string CMD_REMOVE_TILL_END = ESCAPE_KEY "[K";
 
+static const int reservedLinesBottom = 1;
+
 Terminal* Terminal::get()
 {
     if (terminal == nullptr) {
@@ -121,7 +123,8 @@ std::string Terminal::cursorLastRow()
 
 void Terminal::tildes()
 {
-    for (int y = 0; y < height; ++y) {
+    cursorTopLeft();
+    for (int y = 0; y < height - reservedLinesBottom; ++y) {
         append("~" + CMD_REMOVE_TILL_END);
         if (y < height - 1) append("\r\n");
     }
@@ -136,6 +139,11 @@ void Terminal::getWindowSize()
 
     width = ws.ws_col;
     height = ws.ws_row;
+}
+
+void Terminal::flush()
+{
+    flushBuffer();
 }
 
 void Terminal::flushBuffer()
@@ -183,7 +191,6 @@ void Terminal::refresh()
     buffer = "";
     append(CMD_CURSOR_HIDE);
 
-    clearScreen();
     tildes();
 
     append(CMD_CURSOR_SHOW);

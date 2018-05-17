@@ -16,6 +16,8 @@ int main(int argc, char **argv) {
         term->refresh();
         status = keyHandling.processKeyPress();
     }
+    term->clearScreen();
+    term->flush();
 
     return 0;
 }

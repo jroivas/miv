@@ -50,17 +50,24 @@ void KeyHandling::executeCommand()
     }
 }
 
+void KeyHandling::resetNormalMode()
+{
+    stack = "";
+    command = false;
+    Terminal::get()->resetTemp();
+}
+
 void KeyHandling::processNormalMode()
 {
-    if (!command && lastChar == ':') {
+    if (lastChar == KEY_ESC) {
+        resetNormalMode();
+    } else if (!command && lastChar == ':') {
         command = true;
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
         if (command) executeCommand();
-        stack = "";
-        command = false;
-        Terminal::get()->resetTemp();
+        resetNormalMode();
     } else if (command) {
         if (lastChar == KEY_BACKSPACE) {
             stack = stack.substr(0, stack.length() - 1);

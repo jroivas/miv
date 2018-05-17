@@ -1,6 +1,6 @@
 project('ahead_class_vm', 'cpp')
 
-add_global_arguments('-std=c++14', language : 'cpp')
+add_global_arguments('-std=c++11', language : 'cpp')
 add_global_arguments('-fPIC', language : 'cpp')
 add_global_arguments('-Wall', language : 'cpp')
 add_global_arguments('-Wno-error=unused-local-typedefs', language : 'cpp')
