@@ -105,6 +105,8 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->cursorDown();
     } else if (lastChar == 'd') {
         deleter = true;
+    } else if (lastChar == 'x') {
+        editor::Buffer::getCurrent()->deleteChars();
     } else if (lastChar == 'o') {
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
