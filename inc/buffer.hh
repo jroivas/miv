@@ -15,6 +15,7 @@ public:
     static Buffer *getCurrent();
 
     void addLine(std::string line);
+    void insertLine(std::string line);
     void updateLine(std::string line);
     void append(std::string line);
     void append(char line);

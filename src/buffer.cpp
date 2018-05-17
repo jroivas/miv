@@ -37,6 +37,11 @@ void Buffer::addLine(std::string line)
     data.push_back(line);
 }
 
+void Buffer::insertLine(std::string line)
+{
+    data.insert(data.begin() + posY + 1, line);
+}
+
 void Buffer::updateLine(std::string line)
 {
     while (posY >= data.size()) addLine("");
@@ -64,6 +69,8 @@ void Buffer::cursorUp(uint32_t cnt)
 {
     if (cnt >= posY) posY = 0;
     else posY -= cnt;
+    uint32_t ll = line().length();
+    if (posX >= ll) posX = ll;
 }
 
 void Buffer::cursorDown(uint32_t cnt)

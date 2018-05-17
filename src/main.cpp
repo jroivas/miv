@@ -1,9 +1,11 @@
 #include "terminal.hh"
 #include "keyhandling.hh"
+#include "buffer.hh"
 #include <iostream>
 
-int main(int argc, char **argv) {
-
+int main(int argc, char **argv)
+{
+    editor::Buffer buffer;
     editor::Terminal *term = editor::Terminal::get();
     editor::KeyHandling keyHandling;
 
@@ -18,6 +20,31 @@ int main(int argc, char **argv) {
     }
     term->clearScreen();
     term->flush();
+
+#if 0
+    std::cout << &buffer << "\r\n";
+    editor::Buffer *tmp = new editor::Buffer();
+    std::cout << &tmp << "\r\n";
+    std::cout << editor::Buffer::cnt() << "\r\n";
+    std::cout << "curr : " << editor::Buffer::getCurrent() << "\r\n";
+    std::cout << editor::Buffer::cnt() << "\r\n";
+    {
+        editor::Buffer b2;
+        std::cout << editor::Buffer::cnt() << "\r\n";
+        for (int i = 0; i < 5; ++i) {
+            std::cout << "nn " << i << ": "<< editor::Buffer::getCurrent() << "\r\n";
+            editor::Buffer::next();
+        }
+        editor::Buffer::next();
+        std::cout << "next1: " << editor::Buffer::getCurrent() << "\r\n";
+        editor::Buffer::next();
+        std::cout << "next2: " << editor::Buffer::getCurrent() << "\r\n";
+    }
+
+    std::cout << editor::Buffer::cnt() << "\r\n";
+    delete tmp;
+    std::cout << editor::Buffer::cnt() << "\r\n";
+#endif
 
     return 0;
 }

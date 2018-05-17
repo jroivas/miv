@@ -1,4 +1,5 @@
 #include "terminal.hh"
+#include "buffer.hh"
 
 #include <cstdlib>
 #include <unistd.h>
@@ -153,7 +154,10 @@ void Terminal::flushBuffer()
 
 void Terminal::flushData()
 {
-    write(STDOUT_FILENO, data.c_str(), data.length());
+    std::string bf = editor::Buffer::getCurrent()->viewport(width, height);
+    // FIXME ranges and out of bounds
+    bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y() + 1);
+    write(STDOUT_FILENO, bf.c_str(), bf.length());
 }
 
 void Terminal::flushTemp()

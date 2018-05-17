@@ -1,5 +1,6 @@
 #include "keyhandling.hh"
 #include "terminal.hh"
+#include "buffer.hh"
 
 #include <unistd.h>
 
@@ -76,6 +77,23 @@ void KeyHandling::processNormalMode()
             stack += lastChar;
             Terminal::get()->appendTemp(lastChar);
         }
+    } else if (lastChar == 'h') {
+        editor::Buffer::getCurrent()->cursorLeft();
+    } else if (lastChar == 'l') {
+        editor::Buffer::getCurrent()->cursorRight();
+    } else if (lastChar == 'k') {
+        editor::Buffer::getCurrent()->cursorUp();
+    } else if (lastChar == 'j') {
+        editor::Buffer::getCurrent()->cursorDown();
+    } else if (lastChar == 'o') {
+        editor::Buffer::getCurrent()->insertLine("");
+        editor::Buffer::getCurrent()->cursorDown();
+        mode = Mode::InsertMode;
+    } else if (lastChar == 'O') {
+        editor::Buffer::getCurrent()->cursorUp();
+        editor::Buffer::getCurrent()->insertLine("");
+        editor::Buffer::getCurrent()->cursorDown();
+        mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
         mode = Mode::InsertMode;
     }
@@ -86,11 +104,18 @@ void KeyHandling::processInsertMode()
     if (lastChar == KEY_ESC) {
         mode = Mode::NormalMode;
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
-        Terminal::get()->appendData("\r\n");
+        if (editor::Buffer::getCurrent()->atEnd()) {
+            editor::Buffer::getCurrent()->addLine("");
+        }
+        editor::Buffer::getCurrent()->cursorDown();
     } else if (lastChar == KEY_BACKSPACE) {
-        Terminal::get()->removeData();
+        editor::Buffer::getCurrent()->backspaceChars();
+/*
+    } else if (lastChar == KEY_DEL) {
+        editor::Buffer::getCurrent()->deleteChars();
+*/
     } else {
-        Terminal::get()->appendData(lastChar);
+        editor::Buffer::getCurrent()->append(lastChar);
     }
 }
 
@@ -100,9 +125,6 @@ editor::Status KeyHandling::processKeyPress()
     lastChar = readKey();
     if (lastChar == KEY_NONE) return status;
 
-    /*
-    std::cout << "K " << (int)lastChar << "\r\n";
-    */
     if (isNormalMode()) processNormalMode();
     else if (isInsertMode()) processInsertMode();
 
