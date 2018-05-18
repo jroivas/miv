@@ -50,9 +50,10 @@ void KeyHandling::executeCommand()
         status = editor::Status::Quit;
     }
     if (substrSafe(stack, 0, 2) == "w ") {
-        std::string fname = substrSafe(stack, 2);
+        std::string fname = editor::trim_copy(substrSafe(stack, 2));
         if (!fname.empty()) editor::Buffer::getCurrent()->writeFile(fname);
-    }
+        else Terminal::get()->setStatus("Invalid file name: " + stack);
+    } else Terminal::get()->setStatus("Unknown command: " + stack);
 }
 
 void KeyHandling::resetNormalMode()

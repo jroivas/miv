@@ -28,6 +28,7 @@ public:
     void appendTemp(std::string s);
     void appendTemp(char c);
     void removeTemp();
+    void setStatus(std::string s);
 
     void refresh();
     void refreshPost();
@@ -50,7 +51,8 @@ private:
     void flushBuffer();
     void flushData();
     void flushTemp();
-    
+    void flushStatus();
+
     struct termios raw;
 
     int width;
@@ -58,6 +60,8 @@ private:
 
     std::string buffer;
     std::string temp;
+    std::string status;
+    uint32_t statusTime;
 };
 
 }

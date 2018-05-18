@@ -18,6 +18,7 @@ static const std::string CMD_CURSOR_SHOW = ESCAPE_KEY "[?25h";
 static const std::string CMD_REMOVE_TILL_END = ESCAPE_KEY "[K";
 
 static const std::string NEWLINE = "\r\n";
+static const int  STATUS_DEFAULT_TIME = 5;
 
 static const int reservedLinesBottom = 1;
 
@@ -31,7 +32,8 @@ Terminal* Terminal::get()
 
 Terminal::Terminal() :
     width(80),
-    height(24)
+    height(24),
+    statusTime(0)
 {
     getWindowSize();
 }
@@ -119,6 +121,12 @@ void Terminal::cursorTopLeft()
     append(CMD_CURSOR_TOPLEFT);
 }
 
+void Terminal::setStatus(std::string s)
+{
+    status = s;
+    statusTime = STATUS_DEFAULT_TIME;
+}
+
 std::string Terminal::cursorLastRow()
 {
     return cursorPos(1, height);
@@ -169,6 +177,15 @@ void Terminal::flushTemp()
     write(STDOUT_FILENO, temp.c_str(), temp.length());
 }
 
+void Terminal::flushStatus()
+{
+    if (statusTime == 0) return;
+    std::string statusData = cursorLastRow() + "** ERROR: " + status;
+    write(STDOUT_FILENO, statusData.c_str(), statusData.length());
+    if (statusTime > 0) --statusTime;
+    if (statusTime == 0) status = "";
+}
+
 void Terminal::appendTemp(std::string s)
 {
     temp += s;
@@ -202,6 +219,7 @@ void Terminal::refresh()
     cursorTopLeft();
     flushData();
     flushTemp();
+    flushStatus();
 
     buffer = "";
     append(CMD_CURSOR_SHOW);
