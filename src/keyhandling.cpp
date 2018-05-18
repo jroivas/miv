@@ -1,6 +1,7 @@
 #include "keyhandling.hh"
 #include "terminal.hh"
 #include "buffer.hh"
+#include "tools.hh"
 
 #include <unistd.h>
 
@@ -59,25 +60,51 @@ void KeyHandling::resetNormalMode()
     Terminal::get()->resetTemp();
 }
 
+uint32_t KeyHandling::parseMultiplier()
+{
+    uint32_t res = 0;
+    bool first = true;
+    uint32_t i = 0;
+    for (char c : stack) {
+        if (c >= '0' && c <= '9') {
+            if (!first) {
+                res *= 10;
+            }
+            first = false;
+            res += c - ('0');
+        } else {
+            if (res != 0) {
+                stack = substrSafe(stack, i);
+                return res;
+            }
+        }
+        ++i;
+    }
+    if (res == 0) res = 1;
+    stack = "";
+    return res;
+}
+
 void KeyHandling::processNormalMode()
 {
     if (lastChar == KEY_ESC) {
         resetNormalMode();
     } else if (!command && !deleter && lastChar == ':') {
         command = true;
+        stack = "";
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
     } else if (deleter) {
         if (lastChar == 'd') {
-            editor::Buffer::getCurrent()->deleteLine(atoi(stack.c_str()));
+            editor::Buffer::getCurrent()->deleteLine(parseMultiplier());
             deleter = false;
             stack = "";
         } else if (lastChar == 'l') {
-            editor::Buffer::getCurrent()->deleteChars(atoi(stack.c_str()));
+            editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
             deleter = false;
             stack = "";
         } else if (lastChar == 'h') {
-            editor::Buffer::getCurrent()->backspaceChars(atoi(stack.c_str()));
+            editor::Buffer::getCurrent()->backspaceChars(parseMultiplier());
             deleter = false;
             stack = "";
         //} else if (lastChar == '$') {
@@ -96,17 +123,17 @@ void KeyHandling::processNormalMode()
             Terminal::get()->appendTemp(lastChar);
         }
     } else if (lastChar == 'h') {
-        editor::Buffer::getCurrent()->cursorLeft();
+        editor::Buffer::getCurrent()->cursorLeft(parseMultiplier());
     } else if (lastChar == 'l') {
-        editor::Buffer::getCurrent()->cursorRight();
+        editor::Buffer::getCurrent()->cursorRight(parseMultiplier());
     } else if (lastChar == 'k') {
-        editor::Buffer::getCurrent()->cursorUp();
+        editor::Buffer::getCurrent()->cursorUp(parseMultiplier());
     } else if (lastChar == 'j') {
-        editor::Buffer::getCurrent()->cursorDown();
+        editor::Buffer::getCurrent()->cursorDown(parseMultiplier());
     } else if (lastChar == 'd') {
         deleter = true;
     } else if (lastChar == 'x') {
-        editor::Buffer::getCurrent()->deleteChars();
+        editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
     } else if (lastChar == 'o') {
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
@@ -118,6 +145,8 @@ void KeyHandling::processNormalMode()
         mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
         mode = Mode::InsertMode;
+    } else {
+        stack += lastChar;
     }
 }
 

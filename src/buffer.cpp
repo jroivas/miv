@@ -1,4 +1,5 @@
 #include "buffer.hh"
+#include "tools.hh"
 #include <algorithm>
 
 using editor::Buffer;
@@ -50,7 +51,6 @@ void Buffer::updateLine(std::string line)
 
 void Buffer::deleteLine(uint32_t cnt)
 {
-    if (cnt == 0) cnt = 1;
     uint32_t origY = posY;
     while (cnt > 0 && !data.empty()) {
         data.erase(data.begin() + posY);
@@ -109,12 +109,6 @@ void Buffer::deleteChars(uint32_t cnt)
 {
     std::string l = line();
     updateLine(substrSafe(l, 0, posX) + substrSafe(l, posX + cnt));
-}
-
-std::string Buffer::substrSafe(std::string s, std::string::size_type p, std::string::size_type cnt)
-{
-    if (p >= s.length()) return "";
-    return s.substr(p, cnt);
 }
 
 void Buffer::append(std::string d)

@@ -30,6 +30,7 @@ private:
     void resetNormalMode();
     void processInsertMode();
     void executeCommand();
+    uint32_t parseMultiplier();
 
 
     Mode mode;

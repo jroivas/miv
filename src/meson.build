@@ -3,6 +3,7 @@ miv = executable('miv',
         'terminal.cpp',
         'keyhandling.cpp',
         'buffer.cpp',
+        'tools.cpp',
         'main.cpp'
     ],
     include_directories: [
