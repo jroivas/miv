@@ -49,6 +49,10 @@ void KeyHandling::executeCommand()
     if (stack.find('q') != std::string::npos) {
         status = editor::Status::Quit;
     }
+    if (substrSafe(stack, 0, 2) == "w ") {
+        std::string fname = substrSafe(stack, 2);
+        if (!fname.empty()) editor::Buffer::getCurrent()->writeFile(fname);
+    }
 }
 
 void KeyHandling::resetNormalMode()

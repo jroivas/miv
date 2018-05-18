@@ -56,6 +56,19 @@ bool Buffer::readFile(std::string filename)
     return true;
 }
 
+bool Buffer::writeFile(std::string filename)
+{
+    std::ofstream fd(filename);
+    if (!fd.is_open()) return false;
+
+    for (std::string line : data) {
+        // FIXME Only unix line ending for now
+        fd << line + "\n";
+    }
+    fd.close();
+    return true;
+}
+
 void Buffer::addLine(std::string line)
 {
     data.push_back(line);

@@ -41,7 +41,6 @@ It should work great with my current Vim workflows, and support most of the usef
 
 - Multiple buffers
 - More basic features
-- Save file
 - Open file in editor
 - More commands
 

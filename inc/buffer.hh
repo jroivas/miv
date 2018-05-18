@@ -16,6 +16,7 @@ public:
     static Buffer *getCurrent();
 
     bool readFile(std::string filename);
+    bool writeFile(std::string filename);
 
     void addLine(std::string line);
     void insertLine(std::string line);
