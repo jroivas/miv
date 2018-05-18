@@ -66,6 +66,17 @@ const std::string Buffer::line() const
     return data[posY];
 }
 
+const std::vector<std::string> Buffer::copyLines(uint32_t cnt)
+{
+    std::vector<std::string> res;
+    if (posY >= data.size()) return res;
+    uint32_t target = std::min<uint32_t>(posY + cnt, data.size());
+    for (uint32_t l = posY; l < target; ++l) {
+        res.push_back(data[l]);
+    }
+    return res;
+}
+
 void Buffer::cursorLeft(uint32_t cnt)
 {
     if (cnt >= posX) posX = 0;

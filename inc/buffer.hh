@@ -21,6 +21,7 @@ public:
     void append(std::string line);
     void append(char line);
     const std::string line() const;
+    const std::vector<std::string> copyLines(uint32_t cnt = 1);
 
     void cursorLeft(uint32_t cnt = 1);
     void cursorRight(uint32_t cnt = 1);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace editor {
 
@@ -19,8 +20,12 @@ enum class Operation {
     None,
     Command,
     Delete,
-    Copy,
-    Paste
+    Copy
+};
+
+enum class CopyMode {
+    Lines,
+    Chars
 };
 
 class KeyHandling
@@ -45,9 +50,13 @@ private:
     char lastChar;
 
     std::string stack;
-    Operation operation;
 
+    Operation operation;
     Status status;
+    CopyMode copyMode;
+
+    std::vector<std::string> copyBuffer;
+    std::string copyBufferChars;
 };
 
 }

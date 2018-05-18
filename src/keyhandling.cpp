@@ -93,19 +93,38 @@ void KeyHandling::processNormalMode()
         stack = "";
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
+    } else if (operation == Operation::Copy) {
+        if (lastChar == 'y') {
+            copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier());
+            copyMode = CopyMode::Lines;
+            resetNormalMode();
+        } else if (lastChar == 'l') {
+            uint32_t p = editor::Buffer::getCurrent()->x();
+            copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, parseMultiplier());
+            copyMode = CopyMode::Chars;
+            resetNormalMode();
+        } else if (lastChar == 'h') {
+            uint32_t p = editor::Buffer::getCurrent()->x();
+            uint32_t c = parseMultiplier();
+            if (p > c + 1) p -= c + 1;
+            else {
+                c = p;
+                p = 0;
+            }
+            copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, c);
+            copyMode = CopyMode::Chars;
+            resetNormalMode();
+        }
     } else if (operation == Operation::Delete) {
         if (lastChar == 'd') {
             editor::Buffer::getCurrent()->deleteLine(parseMultiplier());
-            operation = Operation::None;
-            stack = "";
+            resetNormalMode();
         } else if (lastChar == 'l') {
             editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
-            operation = Operation::None;
-            stack = "";
+            resetNormalMode();
         } else if (lastChar == 'h') {
             editor::Buffer::getCurrent()->backspaceChars(parseMultiplier());
-            operation = Operation::None;
-            stack = "";
+            resetNormalMode();
         //} else if (lastChar == '$') {
         } else {
             stack += lastChar;
@@ -129,6 +148,20 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->cursorUp(parseMultiplier());
     } else if (lastChar == 'j') {
         editor::Buffer::getCurrent()->cursorDown(parseMultiplier());
+    } else if (lastChar == 'y') {
+        operation = Operation::Copy;
+    } else if (lastChar == 'p') {
+        uint32_t cnt = parseMultiplier();
+        for (uint32_t c = 0; c < cnt; ++c) {
+            if (copyMode == CopyMode::Lines) {
+                for (auto s : copyBuffer) {
+                    editor::Buffer::getCurrent()->insertLine(s);
+                    editor::Buffer::getCurrent()->cursorDown();
+                }
+            } else {
+                editor::Buffer::getCurrent()->append(copyBufferChars);
+            }
+        }
     } else if (lastChar == 'd') {
         operation = Operation::Delete;
     } else if (lastChar == 'x') {
