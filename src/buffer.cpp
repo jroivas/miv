@@ -133,22 +133,21 @@ void Buffer::cursorUp(uint32_t cnt)
     if (cnt >= posY) posY = 0;
     else posY -= cnt;
     uint32_t ll = line().length();
-    if (posX >= ll) posX = std::min<uint32_t>(posX, ll - 1);
+    if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
 }
 
 void Buffer::cursorDown(uint32_t cnt)
 {
     posY = std::min<uint32_t>(posY + cnt, data.size() - 1);
     uint32_t ll = line().length();
-    if (posX >= ll) posX = ll;
-    if (posX >= ll) posX = std::min<uint32_t>(posX, ll - 1);
+    if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
 }
 
 void Buffer::backspaceChars(uint32_t cnt)
 {
     if (posX == 0) {
-        // FIXME delete from prev line
-        return;    
+        // FIXME TODO delete from prev line
+        return;
     }
     std::string l = line();
     updateLine(substrSafe(l, 0, posX - cnt) + substrSafe(l, posX));
