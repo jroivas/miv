@@ -98,6 +98,14 @@ void KeyHandling::processNormalMode()
             copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier());
             copyMode = CopyMode::Lines;
             resetNormalMode();
+        } else if (lastChar == 'j') {
+            copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier() + 1);
+            copyMode = CopyMode::Lines;
+            resetNormalMode();
+        } else if (lastChar == 'k') {
+            copyBuffer = editor::Buffer::getCurrent()->copyLinesUp(parseMultiplier() + 1);
+            copyMode = CopyMode::Lines;
+            resetNormalMode();
         } else if (lastChar == 'l') {
             uint32_t p = editor::Buffer::getCurrent()->x();
             copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, parseMultiplier());
