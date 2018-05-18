@@ -15,6 +15,14 @@ enum class Status {
     Quit
 };
 
+enum class Operation {
+    None,
+    Command,
+    Delete,
+    Copy,
+    Paste
+};
+
 class KeyHandling
 {
 public:
@@ -37,8 +45,7 @@ private:
     char lastChar;
 
     std::string stack;
-    bool command;
-    bool deleter;
+    Operation operation;
 
     Status status;
 };

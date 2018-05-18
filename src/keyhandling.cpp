@@ -15,7 +15,7 @@ using editor::KeyHandling;
 
 KeyHandling::KeyHandling() :
     mode(Mode::NormalMode),
-    command(false)
+    operation(Operation::None)
 {
 }
 
@@ -55,8 +55,7 @@ void KeyHandling::executeCommand()
 void KeyHandling::resetNormalMode()
 {
     stack = "";
-    command = false;
-    deleter = false;
+    operation = Operation::None;
     Terminal::get()->resetTemp();
 }
 
@@ -89,32 +88,32 @@ void KeyHandling::processNormalMode()
 {
     if (lastChar == KEY_ESC) {
         resetNormalMode();
-    } else if (!command && !deleter && lastChar == ':') {
-        command = true;
+    } else if (operation == Operation::None && lastChar == ':') {
+        operation = Operation::Command;
         stack = "";
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
-    } else if (deleter) {
+    } else if (operation == Operation::Delete) {
         if (lastChar == 'd') {
             editor::Buffer::getCurrent()->deleteLine(parseMultiplier());
-            deleter = false;
+            operation = Operation::None;
             stack = "";
         } else if (lastChar == 'l') {
             editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
-            deleter = false;
+            operation = Operation::None;
             stack = "";
         } else if (lastChar == 'h') {
             editor::Buffer::getCurrent()->backspaceChars(parseMultiplier());
-            deleter = false;
+            operation = Operation::None;
             stack = "";
         //} else if (lastChar == '$') {
         } else {
             stack += lastChar;
         }
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
-        if (command) executeCommand();
+        if (operation == Operation::Command) executeCommand();
         resetNormalMode();
-    } else if (command) {
+    } else if (operation == Operation::Command) {
         if (lastChar == KEY_BACKSPACE) {
             stack = stack.substr(0, stack.length() - 1);
             Terminal::get()->removeTemp();
@@ -131,7 +130,7 @@ void KeyHandling::processNormalMode()
     } else if (lastChar == 'j') {
         editor::Buffer::getCurrent()->cursorDown(parseMultiplier());
     } else if (lastChar == 'd') {
-        deleter = true;
+        operation = Operation::Delete;
     } else if (lastChar == 'x') {
         editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
     } else if (lastChar == 'o') {
