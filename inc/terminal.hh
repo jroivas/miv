@@ -20,7 +20,6 @@ public:
     void cursorTopLeft();
     std::string cursorLastRow();
 
-    void tildes();
     void append(std::string);
     void append(char);
     void appendData(std::string);

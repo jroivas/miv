@@ -46,7 +46,6 @@ bool KeyHandling::isInsertMode() const
 
 void KeyHandling::executeCommand()
 {
-    //std::cout << "STACK: " << stack << "\r\n";
     if (stack.find('q') != std::string::npos) {
         status = editor::Status::Quit;
     }

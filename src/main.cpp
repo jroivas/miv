@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 
     term->enableRawMode();
     term->clearScreen();
-    term->tildes();
 
     editor::Status status = editor::Status::OK;
     while (status == editor::Status::OK) {
