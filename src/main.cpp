@@ -5,7 +5,9 @@
 
 int main(int argc, char **argv)
 {
-    editor::Buffer buffer;
+    std::string src;
+    if (argc > 1) src = argv[1];
+    editor::Buffer buffer(src);
     editor::Terminal *term = editor::Terminal::get();
     editor::KeyHandling keyHandling;
 

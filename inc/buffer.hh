@@ -10,9 +10,12 @@ class Buffer
 {
 public:
     Buffer();
+    Buffer(std::string filename);
     ~Buffer();
 
     static Buffer *getCurrent();
+
+    bool readFile(std::string filename);
 
     void addLine(std::string line);
     void insertLine(std::string line);
@@ -28,11 +31,12 @@ public:
     void cursorRight(uint32_t cnt = 1);
     void cursorUp(uint32_t cnt = 1);
     void cursorDown(uint32_t cnt = 1);
+    void cursorAppend();
 
     void backspaceChars(uint32_t cnt = 1);
     void deleteChars(uint32_t cnt = 1);
 
-    const std::string viewport(uint32_t width, uint32_t height);
+    const std::vector<std::string> viewport(uint32_t width, uint32_t height);
 
     uint32_t x() const { return posX; }
     uint32_t y() const { return posY; }
@@ -64,6 +68,7 @@ private:
     uint32_t posY;
     uint32_t row;
 
+    static void removeBuffer(Buffer *);
     static std::vector<Buffer*> buffers;
     static uint32_t index;
 };

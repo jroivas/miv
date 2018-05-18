@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <termios.h>
 
 namespace editor {
@@ -40,6 +41,7 @@ public:
 
 private:
     Terminal();
+    std::string renderLines(const std::vector<std::string> &lines) const;
 
     void setInputFlags();
     void setOutputFlags();

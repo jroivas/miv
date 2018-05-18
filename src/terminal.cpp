@@ -152,13 +152,25 @@ void Terminal::flushBuffer()
     write(STDOUT_FILENO, buffer.c_str(), buffer.length());
 }
 
+std::string Terminal::renderLines(const std::vector<std::string> &lines) const
+{
+    std::string res = CMD_CURSOR_TOPLEFT;
+    size_t target = lines.size();
+    for (size_t i = 0; i < target; ++i) {
+        res += lines[i];
+        res += CMD_REMOVE_TILL_END;
+        if (i < target - 1) {
+            res += "\r\n";
+        }
+    }
+    res += CMD_CURSOR_SHOW;
+    return res;
+}
+
 void Terminal::flushData()
 {
-    std::string bf = editor::Buffer::getCurrent()->viewport(width, height - reservedLinesBottom);
-    // FIXME ranges and out of bounds
-    bf = CMD_CURSOR_TOPLEFT + bf;
+    std::string bf = renderLines(editor::Buffer::getCurrent()->viewport(width, height - reservedLinesBottom));
     bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
-    bf += CMD_CURSOR_SHOW;
     write(STDOUT_FILENO, bf.c_str(), bf.length());
 }
 
@@ -196,13 +208,12 @@ void Terminal::refresh()
 {
     buffer = "";
     append(CMD_CURSOR_HIDE);
-
-    //tildes();
-
-    append(CMD_CURSOR_SHOW);
     flushBuffer();
     cursorTopLeft();
     flushData();
     flushTemp();
 
+    buffer = "";
+    append(CMD_CURSOR_SHOW);
+    flushBuffer();
 }

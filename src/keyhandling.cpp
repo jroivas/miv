@@ -183,6 +183,9 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
         mode = Mode::InsertMode;
+    } else if (lastChar == 'a') {
+        editor::Buffer::getCurrent()->cursorAppend();
+        mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
         mode = Mode::InsertMode;
     } else {

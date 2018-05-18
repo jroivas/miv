@@ -1,6 +1,6 @@
 #include "buffer.hh"
 #include "tools.hh"
-#include <algorithm>
+#include <fstream>
 
 using editor::Buffer;
 
@@ -15,14 +15,25 @@ Buffer::Buffer() :
     buffers.push_back(this);
 }
 
+Buffer::Buffer(std::string filename) :
+    Buffer()
+{
+    readFile(filename);
+}
+
 Buffer::~Buffer()
 {
+    removeBuffer(this);
+}
+
+void Buffer::removeBuffer(Buffer *buf)
+{
     for (size_t i = 0; i < buffers.size(); ++i) {
-        if (buffers[i] == this) {
+        if (buffers[i] == buf) {
             if (i > 0) index = i - 1;
             else index = 0;
             buffers.erase(buffers.begin() + i);
-            break;
+            return;
         }
     }
 }
@@ -31,6 +42,18 @@ Buffer *Buffer::getCurrent()
 {
     if (buffers.size() == 0) return nullptr;
     return buffers[index];
+}
+
+bool Buffer::readFile(std::string filename)
+{
+    data.erase(data.begin(), data.end());
+    std::ifstream fd(filename);
+    if (!fd.is_open()) return false;
+
+    std::string tmp;
+    while (std::getline(fd, tmp)) data.push_back(tmp);
+    fd.close();
+    return true;
 }
 
 void Buffer::addLine(std::string line)
@@ -100,12 +123,17 @@ void Buffer::cursorRight(uint32_t cnt)
     posX = std::min<uint32_t>(posX + cnt, line().length() - 1);
 }
 
+void Buffer::cursorAppend()
+{
+    posX = std::min<uint32_t>(posX + 1, line().length());
+}
+
 void Buffer::cursorUp(uint32_t cnt)
 {
     if (cnt >= posY) posY = 0;
     else posY -= cnt;
     uint32_t ll = line().length();
-    if (posX >= ll) posX = ll;
+    if (posX >= ll) posX = std::min<uint32_t>(posX, ll - 1);
 }
 
 void Buffer::cursorDown(uint32_t cnt)
@@ -113,6 +141,7 @@ void Buffer::cursorDown(uint32_t cnt)
     posY = std::min<uint32_t>(posY + cnt, data.size() - 1);
     uint32_t ll = line().length();
     if (posX >= ll) posX = ll;
+    if (posX >= ll) posX = std::min<uint32_t>(posX, ll - 1);
 }
 
 void Buffer::backspaceChars(uint32_t cnt)
@@ -148,30 +177,16 @@ void Buffer::append(char d)
     ++posX;
 }
 
-#define ESCAPE_KEY "\x1b"
-static const std::string CMD_REMOVE_TILL_END = ESCAPE_KEY "[K";
-const std::string Buffer::viewport(uint32_t width, uint32_t height)
+const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height)
 {
-    std::string res;
-    if (posY < row) {
-        row = posY;
-    }
-    if (posY >= (row + height)) {
-        row = posY - height + 1;
-    }
+    std::vector<std::string> res;
+    if (posY < row) row = posY;
+    if (posY >= (row + height)) row = posY - height + 1;
 
     for (uint32_t i = 0; i < height; ++i) {
-        int filerow = i + row;
-        if (filerow >= data.size()) {
-            res += "~";
-        } else {
-            //TODO handle row
-            res += data[filerow];
-        }
-        res += CMD_REMOVE_TILL_END;
-        if (i < height - 1) {
-            res += "\r\n";
-        }
+        uint32_t filerow = i + row;
+        if (filerow >= data.size()) res.push_back("~");
+        else res.push_back(data[filerow]);
     }
 
     return res;
