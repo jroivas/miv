@@ -32,10 +32,11 @@ public:
     void backspaceChars(uint32_t cnt = 1);
     void deleteChars(uint32_t cnt = 1);
 
-    const std::string viewport(uint32_t width, uint32_t height) const;
+    const std::string viewport(uint32_t width, uint32_t height);
 
     uint32_t x() const { return posX; }
     uint32_t y() const { return posY; }
+    uint32_t y(uint32_t height) const { return posY - row; }
     bool atEnd() { return posY == data.size() - 1; }
 
     static uint32_t cnt() {

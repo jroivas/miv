@@ -156,7 +156,9 @@ void Terminal::flushData()
 {
     std::string bf = editor::Buffer::getCurrent()->viewport(width, height - reservedLinesBottom);
     // FIXME ranges and out of bounds
-    bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y() + 1);
+    bf = CMD_CURSOR_TOPLEFT + bf;
+    bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
+    bf += CMD_CURSOR_SHOW;
     write(STDOUT_FILENO, bf.c_str(), bf.length());
 }
 
@@ -195,12 +197,12 @@ void Terminal::refresh()
     buffer = "";
     append(CMD_CURSOR_HIDE);
 
-    tildes();
+    //tildes();
 
     append(CMD_CURSOR_SHOW);
-
     flushBuffer();
     cursorTopLeft();
     flushData();
     flushTemp();
+
 }

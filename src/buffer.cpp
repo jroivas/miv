@@ -148,15 +148,28 @@ void Buffer::append(char d)
     ++posX;
 }
 
-const std::string Buffer::viewport(uint32_t width, uint32_t height) const
+#define ESCAPE_KEY "\x1b"
+static const std::string CMD_REMOVE_TILL_END = ESCAPE_KEY "[K";
+const std::string Buffer::viewport(uint32_t width, uint32_t height)
 {
     std::string res;
-    if (data.size() == 0) return res;
-    uint32_t target = std::min<uint32_t>(height, data.size());
-    for (uint32_t i = 0; i < target; ++i) {
-        //TODO handle row
-        res += data[i];
-        if (i < target - 1) {
+    if (posY < row) {
+        row = posY;
+    }
+    if (posY >= (row + height)) {
+        row = posY - height + 1;
+    }
+
+    for (uint32_t i = 0; i < height; ++i) {
+        int filerow = i + row;
+        if (filerow >= data.size()) {
+            res += "~";
+        } else {
+            //TODO handle row
+            res += data[filerow];
+        }
+        res += CMD_REMOVE_TILL_END;
+        if (i < height - 1) {
             res += "\r\n";
         }
     }
