@@ -44,6 +44,7 @@ private:
     void processInsertMode();
     void executeCommand();
     uint32_t parseMultiplier();
+    void saveFile(std::string fname);
 
 
     Mode mode;

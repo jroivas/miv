@@ -127,6 +127,11 @@ void Terminal::setStatus(std::string s)
     statusTime = STATUS_DEFAULT_TIME;
 }
 
+void Terminal::setError(std::string s)
+{
+    setStatus("*** ERROR: " + s);
+}
+
 std::string Terminal::cursorLastRow()
 {
     return cursorPos(1, height);
@@ -174,16 +179,25 @@ void Terminal::flushData()
 
 void Terminal::flushTemp()
 {
-    write(STDOUT_FILENO, temp.c_str(), temp.length());
+    if (temp.empty()) return;
+    std::string temp2 = temp  + CMD_REMOVE_TILL_END;
+    write(STDOUT_FILENO, temp2.c_str(), temp2.length());
 }
 
 void Terminal::flushStatus()
 {
     if (statusTime == 0) return;
-    std::string statusData = cursorLastRow() + "** ERROR: " + status;
+    std::string statusData = cursorLastRow() + status + CMD_REMOVE_TILL_END;
     write(STDOUT_FILENO, statusData.c_str(), statusData.length());
     if (statusTime > 0) --statusTime;
     if (statusTime == 0) status = "";
+}
+
+void Terminal::relocateCursor()
+{
+    if (!temp.empty()) return;
+    std::string pos = cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
+    write(STDOUT_FILENO, pos.c_str(), pos.length());
 }
 
 void Terminal::appendTemp(std::string s)
@@ -224,4 +238,5 @@ void Terminal::refresh()
     buffer = "";
     append(CMD_CURSOR_SHOW);
     flushBuffer();
+    relocateCursor();
 }

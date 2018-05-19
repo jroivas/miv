@@ -44,16 +44,30 @@ bool KeyHandling::isInsertMode() const
     return mode == Mode::InsertMode;
 }
 
+void KeyHandling::saveFile(std::string fname)
+{
+    if (!fname.empty()) {
+        if (editor::Buffer::getCurrent()->writeFile(fname)) {
+            Terminal::get()->setStatus("\"" + fname + "\" was written");
+        } else {
+            Terminal::get()->setError("Could not write \"" + fname + "\"");
+        }
+    }
+    else Terminal::get()->setError("Invalid file name: " + stack);
+}
+
 void KeyHandling::executeCommand()
 {
-    if (stack.find('q') != std::string::npos) {
+    if (substrSafe(stack, 0, 2) == "q") {
         status = editor::Status::Quit;
-    }
-    if (substrSafe(stack, 0, 2) == "w ") {
-        std::string fname = editor::trim_copy(substrSafe(stack, 2));
-        if (!fname.empty()) editor::Buffer::getCurrent()->writeFile(fname);
-        else Terminal::get()->setStatus("Invalid file name: " + stack);
-    } else Terminal::get()->setStatus("Unknown command: " + stack);
+    } else if (substrSafe(stack, 0, 2) == "w ") {
+        saveFile(editor::trim_copy(substrSafe(stack, 2)));
+    } else if (substrSafe(stack, 0, 1) == "w") {
+        if (editor::Buffer::getCurrent()->hasFilename()) {
+            saveFile(editor::Buffer::getCurrent()->filename());
+        } else Terminal::get()->setError("No file name");
+        if (substrSafe(stack, 1, 1) == "q") status = editor::Status::Quit;
+    } else Terminal::get()->setError("Unknown command: " + stack);
 }
 
 void KeyHandling::resetNormalMode()

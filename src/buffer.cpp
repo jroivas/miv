@@ -10,7 +10,8 @@ uint32_t Buffer::index = 0;
 Buffer::Buffer() :
     posX(0),
     posY(0),
-    row(0)
+    row(0),
+    lineEnding("\n")
 {
     buffers.push_back(this);
 }
@@ -49,6 +50,7 @@ bool Buffer::readFile(std::string filename)
     data.erase(data.begin(), data.end());
     std::ifstream fd(filename);
     if (!fd.is_open()) return false;
+    fileName = filename;
 
     std::string tmp;
     while (std::getline(fd, tmp)) data.push_back(tmp);
@@ -60,11 +62,9 @@ bool Buffer::writeFile(std::string filename)
 {
     std::ofstream fd(filename);
     if (!fd.is_open()) return false;
+    fileName = filename;
 
-    for (std::string line : data) {
-        // FIXME Only unix line ending for now
-        fd << line + "\n";
-    }
+    for (std::string line : data) fd << line + lineEnding;
     fd.close();
     return true;
 }

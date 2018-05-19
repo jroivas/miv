@@ -29,6 +29,7 @@ public:
     void appendTemp(char c);
     void removeTemp();
     void setStatus(std::string s);
+    void setError(std::string s);
 
     void refresh();
     void refreshPost();
@@ -52,6 +53,7 @@ private:
     void flushData();
     void flushTemp();
     void flushStatus();
+    void relocateCursor();
 
     struct termios raw;
 

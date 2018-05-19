@@ -17,6 +17,12 @@ public:
 
     bool readFile(std::string filename);
     bool writeFile(std::string filename);
+    bool hasFilename() const {
+        return !fileName.empty();
+    }
+    std::string filename() const {
+        return fileName;
+    }
 
     void addLine(std::string line);
     void insertLine(std::string line);
@@ -68,6 +74,9 @@ private:
     uint32_t posX;
     uint32_t posY;
     uint32_t row;
+
+    std::string lineEnding;
+    std::string fileName;
 
     static void removeBuffer(Buffer *);
     static std::vector<Buffer*> buffers;
