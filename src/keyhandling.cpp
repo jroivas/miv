@@ -162,6 +162,10 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->cursorDown(parseMultiplier());
     } else if (lastChar == 'y') {
         operation = Operation::Copy;
+    } else if (lastChar == '$') {
+        editor::Buffer::getCurrent()->cursorRight(editor::Buffer::getCurrent()->line().length());
+    } else if (lastChar == '0') {
+        editor::Buffer::getCurrent()->cursorLeft(editor::Buffer::getCurrent()->line().length());
     } else if (lastChar == 'p') {
         uint32_t cnt = parseMultiplier();
         for (uint32_t c = 0; c < cnt; ++c) {
