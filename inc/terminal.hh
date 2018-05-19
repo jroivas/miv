@@ -40,6 +40,9 @@ public:
     static std::string cursorPos(int x, int y);
     void flush();
 
+    int getWidth() const { return width; }
+    int getHeight() const;
+
 private:
     Terminal();
     std::string renderLines(const std::vector<std::string> &lines) const;

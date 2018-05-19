@@ -209,6 +209,12 @@ void Terminal::flushInfo()
     write(STDOUT_FILENO, info.c_str(), info.length());
 }
 
+
+int Terminal::getHeight() const
+{
+    return height - reservedLinesBottom - 1;
+}
+
 void Terminal::relocateCursor()
 {
     if (!temp.empty()) return;

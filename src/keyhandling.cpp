@@ -6,6 +6,9 @@
 #include <unistd.h>
 
 static const char KEY_NONE = 0x0;
+static const char KEY_CTRL_B = 0x2;
+static const char KEY_CTRL_F = 0x6;
+static const char KEY_CTRL_U = 0x15;
 static const char KEY_ENTER = 0xA;
 static const char KEY_RETURN = 0xD;
 static const char KEY_ESC = 0x1b;
@@ -234,7 +237,12 @@ void KeyHandling::processNormalMode()
         mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
         mode = Mode::InsertMode;
+    } else if (lastChar == KEY_CTRL_F) {
+        editor::Buffer::getCurrent()->pageDown(editor::Terminal::get()->getHeight(), parseMultiplier());
+    } else if (lastChar == KEY_CTRL_U) {
+        editor::Buffer::getCurrent()->pageUp(editor::Terminal::get()->getHeight(), parseMultiplier());
     } else {
+        //log("KEY", std::to_string((int)lastChar));
         stack += lastChar;
     }
 }

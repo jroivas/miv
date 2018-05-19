@@ -43,6 +43,8 @@ public:
     void cursorUp(uint32_t cnt = 1);
     void cursorDown(uint32_t cnt = 1);
     void cursorAppend();
+    void pageUp(uint32_t pageSize, uint32_t cnt = 1);
+    void pageDown(uint32_t pageSize, uint32_t cnt = 1);
 
     void cursorWord(uint32_t cnt = 1);
 

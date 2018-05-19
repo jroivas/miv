@@ -144,6 +144,7 @@ void Buffer::sanitizePos()
 {
     uint32_t ll = lineLength();
     posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : ll);
+    posY = std::min<uint32_t>(posY, data.size() - 1);
 }
 
 uint32_t Buffer::tabs() const
@@ -205,8 +206,28 @@ void Buffer::cursorUp(uint32_t cnt)
 
 void Buffer::cursorDown(uint32_t cnt)
 {
-    posY = std::min<uint32_t>(posY + cnt, data.size() - 1);
+    posY += cnt;
     sanitizePos();
+}
+
+void Buffer::pageUp(uint32_t pageSize, uint32_t cnt)
+{
+    if (row >= pageSize * cnt) {
+        row -= pageSize * cnt;
+        posY = row;
+        posY += pageSize;
+    } else {
+        row = 0;
+        posY = 0;
+    }
+    sanitizePos();
+}
+
+void Buffer::pageDown(uint32_t pageSize, uint32_t cnt)
+{
+    posY += pageSize * cnt - 1;
+    sanitizePos();
+    row = posY;
 }
 
 void Buffer::cursorWord(uint32_t cnt)
@@ -218,7 +239,7 @@ void Buffer::cursorWord(uint32_t cnt)
         posX = 0;
         nowline = line();
     }
-    static const std::string delimiters = " ,.:;\\/-";
+    static const std::string delimiters = " ,.:;\\/-\t";
     for (uint32_t p = posX + 1; p < ll; ++p) {
         char n = utf8_at(nowline, p);
         if (delimiters.find(n) != std::string::npos) {
@@ -276,7 +297,7 @@ void Buffer::append(char d)
 void Buffer::relocateRow(uint32_t width, uint32_t height)
 {
     if (posY < row) row = posY;
-    if (posY >= (row + height)) row = posY - height + 1;
+    if (posY >= (row + height)) row = posY - height;
 }
 
 std::string Buffer::spaces(uint32_t cnt) const
