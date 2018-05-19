@@ -214,6 +214,8 @@ void KeyHandling::processNormalMode()
         editor::Buffer::getCurrent()->gotoY(parseMultiplier(false));
     } else if (lastChar == 'p') {
         handlePaste();
+    } else if (lastChar == 'w') {
+        editor::Buffer::getCurrent()->cursorWord(parseMultiplier());
     } else if (lastChar == 'd') {
         operation = Operation::Delete;
     } else if (lastChar == 'x') {

@@ -33,6 +33,8 @@ public:
 
     const std::string line() const;
     uint32_t lineLength() const;
+    uint32_t tabs() const;
+    uint32_t tabExtra() const;
     const std::vector<std::string> copyLines(uint32_t cnt = 1) const;
     const std::vector<std::string> copyLinesUp(uint32_t cnt = 1) const;
 
@@ -41,6 +43,8 @@ public:
     void cursorUp(uint32_t cnt = 1);
     void cursorDown(uint32_t cnt = 1);
     void cursorAppend();
+
+    void cursorWord(uint32_t cnt = 1);
 
     void backspaceChars(uint32_t cnt = 1);
     void deleteChars(uint32_t cnt = 1);
@@ -79,6 +83,13 @@ private:
     uint32_t posX;
     uint32_t posY;
     uint32_t row;
+    uint32_t tabSize;
+    bool tabsToSpaces;
+
+    void sanitizePos();
+
+    std::string spaces(uint32_t cnt) const;
+    std::string handleSpecial(std::string line) const;
 
     std::string lineEnding;
     std::string fileName;

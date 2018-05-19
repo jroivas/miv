@@ -7,6 +7,8 @@ namespace editor {
 
 std::string substrSafe(std::string s, std::string::size_type p, std::string::size_type cnt = std::string::npos);
 bool utf8_valid(std::string s);
+char utf8_at(std::string s, uint32_t p);
+std::string utf8_at_str(std::string s, uint32_t p);
 uint32_t utf8_length(std::string s);
 
 void log(std::string prefix, std::string s);

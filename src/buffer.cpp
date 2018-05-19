@@ -12,6 +12,8 @@ Buffer::Buffer() :
     posX(0),
     posY(0),
     row(0),
+    tabSize(8),
+    tabsToSpaces(false),
     lineEnding("\n")
 {
     buffers.push_back(this);
@@ -138,6 +140,44 @@ const std::vector<std::string> Buffer::copyLinesUp(uint32_t cnt) const
     return res;
 }
 
+void Buffer::sanitizePos()
+{
+    uint32_t ll = lineLength();
+    posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : ll);
+}
+
+uint32_t Buffer::tabs() const
+{
+    std::string l = line();
+    uint32_t res = 0;
+    for (uint32_t p = 0; p < posX; ++p) {
+        char c = utf8_at(l, p);
+        if (c == '\t') ++res;
+    }
+    return res;
+}
+
+uint32_t Buffer::tabExtra() const
+{
+    std::string l = line();
+
+    uint32_t res = 0;
+    uint32_t pos = 0;
+    for (uint32_t p = 0; p < posX; ++p) {
+        char c = utf8_at(l, p);
+        if (c == '\t') {
+            ++pos;
+            while (pos % tabSize != 0) {
+                ++pos;
+                ++res;
+            }
+        } else {
+            ++pos;
+        }
+    }
+    return res;
+}
+
 void Buffer::cursorLeft(uint32_t cnt)
 {
     if (cnt >= posX) posX = 0;
@@ -146,28 +186,50 @@ void Buffer::cursorLeft(uint32_t cnt)
 
 void Buffer::cursorRight(uint32_t cnt)
 {
-    uint32_t ll = lineLength();
-    posX = std::min<uint32_t>(posX + cnt, ll > 0 ? ll - 1 : ll);
+    posX += cnt;
+    sanitizePos();
 }
 
 void Buffer::cursorAppend()
 {
-    posX = std::min<uint32_t>(posX + 1,  lineLength());
+    ++posX;
+    sanitizePos();
 }
 
 void Buffer::cursorUp(uint32_t cnt)
 {
     if (cnt >= posY) posY = 0;
     else posY -= cnt;
-    uint32_t ll = lineLength();
-    if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
+    sanitizePos();
 }
 
 void Buffer::cursorDown(uint32_t cnt)
 {
     posY = std::min<uint32_t>(posY + cnt, data.size() - 1);
-    uint32_t ll = lineLength();
-    if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
+    sanitizePos();
+}
+
+void Buffer::cursorWord(uint32_t cnt)
+{
+    std::string nowline = line();
+    uint32_t ll = utf8_length(nowline);
+    if (posX >= ll) {
+        ++posY;
+        posX = 0;
+        nowline = line();
+    }
+    static const std::string delimiters = " ,.:;\\/-";
+    for (uint32_t p = posX + 1; p < ll; ++p) {
+        char n = utf8_at(nowline, p);
+        if (delimiters.find(n) != std::string::npos) {
+            posX = p;
+            if (n == ' ') ++posX;
+            sanitizePos();
+            return;
+        }
+    }
+    ++posY;
+    posX = 0;
 }
 
 void Buffer::backspaceChars(uint32_t cnt)
@@ -181,12 +243,14 @@ void Buffer::backspaceChars(uint32_t cnt)
 
     if (posX <= cnt) posX = 0;
     else posX -= cnt;
+    sanitizePos();
 }
 
 void Buffer::deleteChars(uint32_t cnt)
 {
     std::string l = line();
     updateLine(substrSafe(l, 0, posX) + substrSafe(l, posX + cnt));
+    sanitizePos();
 }
 
 void Buffer::append(std::string d)
@@ -194,6 +258,7 @@ void Buffer::append(std::string d)
     std::string l = line();
     updateLine(substrSafe(l, 0, posX) + d + substrSafe(l, posX));
     posX += utf8_length(d);
+    sanitizePos();
 }
 
 void Buffer::append(char d)
@@ -214,13 +279,42 @@ void Buffer::relocateRow(uint32_t width, uint32_t height)
     if (posY >= (row + height)) row = posY - height + 1;
 }
 
+std::string Buffer::spaces(uint32_t cnt) const
+{
+    std::string res;
+    for (uint32_t c = 0; c < cnt; ++c) res += ' ';
+    return res;
+}
+
+std::string Buffer::handleSpecial(std::string line) const
+{
+    std::string res;
+    uint32_t pos = 0;
+    uint32_t ll = utf8_length(line);
+    for (uint32_t p = 0; p < ll; ++p) {
+        std::string s = utf8_at_str(line, p);
+        if (s == "\t") {
+            res += ' ';
+            ++pos;
+            while (pos % tabSize != 0) {
+                ++pos;
+                res += ' ';
+            }
+        } else {
+            ++pos;
+            res += s;
+        }
+    }
+    return res;
+}
+
 const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height) const
 {
     std::vector<std::string> res;
     for (uint32_t i = 0; i < height; ++i) {
         uint32_t filerow = i + row;
         if (filerow >= data.size()) res.push_back("~");
-        else res.push_back(data[filerow]);
+        else res.push_back(handleSpecial(data[filerow]));
     }
 
     return res;

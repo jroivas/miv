@@ -212,7 +212,8 @@ void Terminal::flushInfo()
 void Terminal::relocateCursor()
 {
     if (!temp.empty()) return;
-    std::string pos = cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
+    uint32_t tabs = editor::Buffer::getCurrent()->tabExtra();
+    std::string pos = cursorPos(editor::Buffer::getCurrent()->x() + tabs + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
     write(STDOUT_FILENO, pos.c_str(), pos.length());
 }
 

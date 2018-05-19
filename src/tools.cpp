@@ -22,6 +22,24 @@ std::string editor::substrSafe(std::string s, std::string::size_type p, std::str
     return std::string(startpos, endpos);
 }
 
+char editor::utf8_at(std::string s, uint32_t p)
+{
+    if (p >= utf8_length(s)) return 0;
+    auto startpos = s.begin();
+    utf8::advance(startpos, p, s.end());
+    return *startpos;
+}
+
+std::string editor::utf8_at_str(std::string s, uint32_t p)
+{
+    if (p >= utf8_length(s)) return "";
+    auto startpos = s.begin();
+    utf8::advance(startpos, p, s.end());
+    auto endpos = startpos;
+    utf8::advance(endpos, 1, s.end());
+    return std::string(startpos, endpos);
+}
+
 void editor::log(std::string prefix, std::string s)
 {
     std::ofstream fd("miv.log", std::ofstream::out | std::ofstream::app);
