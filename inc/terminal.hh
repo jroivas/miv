@@ -53,6 +53,7 @@ private:
     void flushData();
     void flushTemp();
     void flushStatus();
+    void flushInfo();
     void relocateCursor();
 
     struct termios raw;

@@ -50,6 +50,7 @@ public:
 
     uint32_t x() const { return posX; }
     uint32_t y() const { return posY; }
+    uint32_t size() const { return data.size(); }
     uint32_t y(uint32_t height) const { return posY - row; }
     bool atEnd() const { return posY == data.size() - 1; }
     void gotoY(uint32_t y = 0);

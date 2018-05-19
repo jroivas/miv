@@ -194,6 +194,21 @@ void Terminal::flushStatus()
     if (statusTime == 0) status = "";
 }
 
+void Terminal::flushInfo()
+{
+    std::string info;
+    info += std::to_string(editor::Buffer::getCurrent()->x() + 1);
+    info += ",";
+    info += std::to_string(editor::Buffer::getCurrent()->y() + 1);
+    info += " ";
+    uint32_t cnt = editor::Buffer::getCurrent()->size();
+    if (cnt == 0) info += "0";
+    else info += std::to_string((editor::Buffer::getCurrent()->y() + 1) * 100 / cnt);
+    info += "%";
+    info = cursorPos(width - info.length(), height - 1) + info;
+    write(STDOUT_FILENO, info.c_str(), info.length());
+}
+
 void Terminal::relocateCursor()
 {
     if (!temp.empty()) return;
@@ -235,6 +250,7 @@ void Terminal::refresh()
     flushData();
     flushTemp();
     flushStatus();
+    flushInfo();
 
     buffer = "";
     append(CMD_CURSOR_SHOW);
