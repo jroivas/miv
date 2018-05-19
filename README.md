@@ -24,13 +24,15 @@ It should work great with my current Vim workflows, and support most of the usef
 - Basic movement with `h`, `j`, `k`, `l`
 - Insert, append `i`, `a`
 - New line `o`, `O`
+- Begin and end of line `0`, `$` (only cursor positioning for now)
 - Delete lines `dd`
 - Delete characters `dh`, `dl`
 - Copy lines `yy`, `yj`, `yk`
 - Copy characters `yh`, `yl`, `x`
 - Paste copied line or characters
 - Reading files contents to buffer from command line
-- Quitting! (`:q`)
+- Saving `:w`
+- Quitting! `:q`, `:wq`
 
 ## Design
 

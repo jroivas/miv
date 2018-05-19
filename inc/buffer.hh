@@ -30,9 +30,11 @@ public:
     void deleteLine(uint32_t cnt = 1);
     void append(std::string line);
     void append(char line);
+
     const std::string line() const;
-    const std::vector<std::string> copyLines(uint32_t cnt = 1);
-    const std::vector<std::string> copyLinesUp(uint32_t cnt = 1);
+    uint32_t lineLength() const;
+    const std::vector<std::string> copyLines(uint32_t cnt = 1) const;
+    const std::vector<std::string> copyLinesUp(uint32_t cnt = 1) const;
 
     void cursorLeft(uint32_t cnt = 1);
     void cursorRight(uint32_t cnt = 1);
@@ -43,12 +45,13 @@ public:
     void backspaceChars(uint32_t cnt = 1);
     void deleteChars(uint32_t cnt = 1);
 
-    const std::vector<std::string> viewport(uint32_t width, uint32_t height);
+    void relocateRow(uint32_t width, uint32_t height);
+    const std::vector<std::string> viewport(uint32_t width, uint32_t height) const;
 
     uint32_t x() const { return posX; }
     uint32_t y() const { return posY; }
     uint32_t y(uint32_t height) const { return posY - row; }
-    bool atEnd() { return posY == data.size() - 1; }
+    bool atEnd() const { return posY == data.size() - 1; }
 
     static uint32_t cnt() {
         return buffers.size();
@@ -77,6 +80,7 @@ private:
 
     std::string lineEnding;
     std::string fileName;
+    std::string appendBuffer;
 
     static void removeBuffer(Buffer *);
     static std::vector<Buffer*> buffers;

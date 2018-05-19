@@ -1,6 +1,7 @@
 #include "buffer.hh"
 #include "tools.hh"
 #include <fstream>
+#include <utf8.h>
 
 using editor::Buffer;
 
@@ -48,9 +49,9 @@ Buffer *Buffer::getCurrent()
 bool Buffer::readFile(std::string filename)
 {
     data.erase(data.begin(), data.end());
+    fileName = filename;
     std::ifstream fd(filename);
     if (!fd.is_open()) return false;
-    fileName = filename;
 
     std::string tmp;
     while (std::getline(fd, tmp)) data.push_back(tmp);
@@ -102,7 +103,13 @@ const std::string Buffer::line() const
     return data[posY];
 }
 
-const std::vector<std::string> Buffer::copyLines(uint32_t cnt)
+uint32_t Buffer::lineLength() const
+{
+    if (posY >= data.size()) return 0;
+    return utf8_length(data[posY]);
+}
+
+const std::vector<std::string> Buffer::copyLines(uint32_t cnt) const
 {
     std::vector<std::string> res;
     if (posY >= data.size()) return res;
@@ -113,7 +120,7 @@ const std::vector<std::string> Buffer::copyLines(uint32_t cnt)
     return res;
 }
 
-const std::vector<std::string> Buffer::copyLinesUp(uint32_t cnt)
+const std::vector<std::string> Buffer::copyLinesUp(uint32_t cnt) const
 {
     std::vector<std::string> res;
     if (posY >= data.size()) return res;
@@ -133,26 +140,27 @@ void Buffer::cursorLeft(uint32_t cnt)
 
 void Buffer::cursorRight(uint32_t cnt)
 {
-    posX = std::min<uint32_t>(posX + cnt, line().length() - 1);
+    uint32_t ll = lineLength();
+    posX = std::min<uint32_t>(posX + cnt, ll > 0 ? ll - 1 : ll);
 }
 
 void Buffer::cursorAppend()
 {
-    posX = std::min<uint32_t>(posX + 1, line().length());
+    posX = std::min<uint32_t>(posX + 1,  lineLength());
 }
 
 void Buffer::cursorUp(uint32_t cnt)
 {
     if (cnt >= posY) posY = 0;
     else posY -= cnt;
-    uint32_t ll = line().length();
+    uint32_t ll = lineLength();
     if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
 }
 
 void Buffer::cursorDown(uint32_t cnt)
 {
     posY = std::min<uint32_t>(posY + cnt, data.size() - 1);
-    uint32_t ll = line().length();
+    uint32_t ll = lineLength();
     if (posX >= ll) posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : 0);
 }
 
@@ -163,7 +171,7 @@ void Buffer::backspaceChars(uint32_t cnt)
         return;
     }
     std::string l = line();
-    updateLine(substrSafe(l, 0, posX - cnt) + substrSafe(l, posX));
+    updateLine(substrSafe(l, 0, posX > cnt ? posX - cnt : 0) + substrSafe(l, posX));
 
     if (posX <= cnt) posX = 0;
     else posX -= cnt;
@@ -179,22 +187,30 @@ void Buffer::append(std::string d)
 {
     std::string l = line();
     updateLine(substrSafe(l, 0, posX) + d + substrSafe(l, posX));
-    posX += d.length();
+    posX += utf8_length(d);
 }
 
 void Buffer::append(char d)
 {
-    std::string l = line();
-    updateLine(substrSafe(l, 0, posX) + d + substrSafe(l, posX));
-    ++posX;
+    appendBuffer += d;
+    if (!utf8_valid(appendBuffer)) {
+        // Reset after too many failed chars
+        if (appendBuffer.length() > 4) append(appendBuffer);
+        return;
+    }
+    append(appendBuffer);
+    appendBuffer = "";
 }
 
-const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height)
+void Buffer::relocateRow(uint32_t width, uint32_t height)
 {
-    std::vector<std::string> res;
     if (posY < row) row = posY;
     if (posY >= (row + height)) row = posY - height + 1;
+}
 
+const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height) const
+{
+    std::vector<std::string> res;
     for (uint32_t i = 0; i < height; ++i) {
         uint32_t filerow = i + row;
         if (filerow >= data.size()) res.push_back("~");

@@ -172,6 +172,7 @@ std::string Terminal::renderLines(const std::vector<std::string> &lines) const
 
 void Terminal::flushData()
 {
+    editor::Buffer::getCurrent()->relocateRow(width, height - reservedLinesBottom);
     std::string bf = renderLines(editor::Buffer::getCurrent()->viewport(width, height - reservedLinesBottom));
     bf += cursorPos(editor::Buffer::getCurrent()->x() + 1, editor::Buffer::getCurrent()->y(height - reservedLinesBottom) + 1);
     write(STDOUT_FILENO, bf.c_str(), bf.length());

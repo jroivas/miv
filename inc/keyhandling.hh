@@ -33,7 +33,7 @@ class KeyHandling
 public:
     KeyHandling();
     Status processKeyPress();
-    char readKey();
+    char readKey() const;
     void changeMode(Mode mode);
 
 private:
@@ -44,7 +44,7 @@ private:
     void processInsertMode();
     void executeCommand();
     uint32_t parseMultiplier();
-    void saveFile(std::string fname);
+    void saveFile(std::string fname) const;
 
 
     Mode mode;

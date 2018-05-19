@@ -9,5 +9,6 @@ add_global_arguments('-Wno-error=pedantic', language : 'cpp')
 
 main_inc = include_directories('inc')
 top_inc = include_directories('.')
+utf_inc = include_directories('3pp/utf8/source')
 
 subdir('src')

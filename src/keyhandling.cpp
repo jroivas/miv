@@ -19,7 +19,7 @@ KeyHandling::KeyHandling() :
 {
 }
 
-char KeyHandling::readKey()
+char KeyHandling::readKey() const
 {
     char c = 0;
     int cnt;
@@ -44,7 +44,7 @@ bool KeyHandling::isInsertMode() const
     return mode == Mode::InsertMode;
 }
 
-void KeyHandling::saveFile(std::string fname)
+void KeyHandling::saveFile(std::string fname) const
 {
     if (!fname.empty()) {
         if (editor::Buffer::getCurrent()->writeFile(fname)) {

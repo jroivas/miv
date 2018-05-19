@@ -6,6 +6,10 @@
 namespace editor {
 
 std::string substrSafe(std::string s, std::string::size_type p, std::string::size_type cnt = std::string::npos);
+bool utf8_valid(std::string s);
+uint32_t utf8_length(std::string s);
+
+void log(std::string prefix, std::string s);
 
 // trim from start (in place)
 static inline void ltrim(std::string &s) {

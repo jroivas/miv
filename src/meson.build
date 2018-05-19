@@ -8,6 +8,7 @@ miv = executable('miv',
     ],
     include_directories: [
         top_inc,
+        utf_inc,
         main_inc
     ]
 )
