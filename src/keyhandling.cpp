@@ -102,6 +102,82 @@ uint32_t KeyHandling::parseMultiplier(bool forceOne)
     return res;
 }
 
+void KeyHandling::handleCopy()
+{
+    if (lastChar == 'y') {
+        copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier());
+        copyMode = CopyMode::Lines;
+        resetNormalMode();
+    } else if (lastChar == 'j') {
+        copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier() + 1);
+        copyMode = CopyMode::Lines;
+        resetNormalMode();
+    } else if (lastChar == 'k') {
+        copyBuffer = editor::Buffer::getCurrent()->copyLinesUp(parseMultiplier() + 1);
+        copyMode = CopyMode::Lines;
+        resetNormalMode();
+    } else if (lastChar == 'l') {
+        uint32_t p = editor::Buffer::getCurrent()->x();
+        copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, parseMultiplier());
+        copyMode = CopyMode::Chars;
+        resetNormalMode();
+    } else if (lastChar == 'h') {
+        uint32_t p = editor::Buffer::getCurrent()->x();
+        uint32_t c = parseMultiplier();
+        if (p > c + 1) p -= c + 1;
+        else {
+            c = p;
+            p = 0;
+        }
+        copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, c);
+        copyMode = CopyMode::Chars;
+        resetNormalMode();
+    }
+}
+
+void KeyHandling::handleDelete()
+{
+    if (lastChar == 'd') {
+        editor::Buffer::getCurrent()->deleteLine(parseMultiplier());
+        resetNormalMode();
+    } else if (lastChar == 'l') {
+        editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
+        resetNormalMode();
+    } else if (lastChar == 'h') {
+        editor::Buffer::getCurrent()->backspaceChars(parseMultiplier());
+        resetNormalMode();
+    //} else if (lastChar == '$') {
+    } else {
+        stack += lastChar;
+    }
+}
+
+void KeyHandling::handlePaste()
+{
+    uint32_t cnt = parseMultiplier();
+    for (uint32_t c = 0; c < cnt; ++c) {
+        if (copyMode == CopyMode::Lines) {
+            for (auto s : copyBuffer) {
+                editor::Buffer::getCurrent()->insertLine(s);
+                editor::Buffer::getCurrent()->cursorDown();
+            }
+        } else {
+            editor::Buffer::getCurrent()->append(copyBufferChars);
+        }
+    }
+}
+
+void KeyHandling::handleCommandEdit()
+{
+    if (lastChar == KEY_BACKSPACE) {
+        stack = stack.substr(0, stack.length() - 1);
+        Terminal::get()->removeTemp();
+    } else {
+        stack += lastChar;
+        Terminal::get()->appendTemp(lastChar);
+    }
+}
+
 void KeyHandling::processNormalMode()
 {
     if (lastChar == KEY_ESC) {
@@ -112,60 +188,14 @@ void KeyHandling::processNormalMode()
         Terminal::get()->appendTemp(Terminal::get()->cursorLastRow());
         Terminal::get()->appendTemp(lastChar);
     } else if (operation == Operation::Copy) {
-        if (lastChar == 'y') {
-            copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier());
-            copyMode = CopyMode::Lines;
-            resetNormalMode();
-        } else if (lastChar == 'j') {
-            copyBuffer = editor::Buffer::getCurrent()->copyLines(parseMultiplier() + 1);
-            copyMode = CopyMode::Lines;
-            resetNormalMode();
-        } else if (lastChar == 'k') {
-            copyBuffer = editor::Buffer::getCurrent()->copyLinesUp(parseMultiplier() + 1);
-            copyMode = CopyMode::Lines;
-            resetNormalMode();
-        } else if (lastChar == 'l') {
-            uint32_t p = editor::Buffer::getCurrent()->x();
-            copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, parseMultiplier());
-            copyMode = CopyMode::Chars;
-            resetNormalMode();
-        } else if (lastChar == 'h') {
-            uint32_t p = editor::Buffer::getCurrent()->x();
-            uint32_t c = parseMultiplier();
-            if (p > c + 1) p -= c + 1;
-            else {
-                c = p;
-                p = 0;
-            }
-            copyBufferChars = substrSafe(editor::Buffer::getCurrent()->line(), p, c);
-            copyMode = CopyMode::Chars;
-            resetNormalMode();
-        }
+        handleCopy();
     } else if (operation == Operation::Delete) {
-        if (lastChar == 'd') {
-            editor::Buffer::getCurrent()->deleteLine(parseMultiplier());
-            resetNormalMode();
-        } else if (lastChar == 'l') {
-            editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
-            resetNormalMode();
-        } else if (lastChar == 'h') {
-            editor::Buffer::getCurrent()->backspaceChars(parseMultiplier());
-            resetNormalMode();
-        //} else if (lastChar == '$') {
-        } else {
-            stack += lastChar;
-        }
+        handleDelete();
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
         if (operation == Operation::Command) executeCommand();
         resetNormalMode();
     } else if (operation == Operation::Command) {
-        if (lastChar == KEY_BACKSPACE) {
-            stack = stack.substr(0, stack.length() - 1);
-            Terminal::get()->removeTemp();
-        } else {
-            stack += lastChar;
-            Terminal::get()->appendTemp(lastChar);
-        }
+        handleCommandEdit();
     } else if (lastChar == 'h') {
         editor::Buffer::getCurrent()->cursorLeft(parseMultiplier());
     } else if (lastChar == 'l') {
@@ -183,17 +213,7 @@ void KeyHandling::processNormalMode()
     } else if (lastChar == 'G') {
         editor::Buffer::getCurrent()->gotoY(parseMultiplier(false));
     } else if (lastChar == 'p') {
-        uint32_t cnt = parseMultiplier();
-        for (uint32_t c = 0; c < cnt; ++c) {
-            if (copyMode == CopyMode::Lines) {
-                for (auto s : copyBuffer) {
-                    editor::Buffer::getCurrent()->insertLine(s);
-                    editor::Buffer::getCurrent()->cursorDown();
-                }
-            } else {
-                editor::Buffer::getCurrent()->append(copyBufferChars);
-            }
-        }
+        handlePaste();
     } else if (lastChar == 'd') {
         operation = Operation::Delete;
     } else if (lastChar == 'x') {

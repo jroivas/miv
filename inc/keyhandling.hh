@@ -39,13 +39,19 @@ public:
 private:
     bool isNormalMode() const;
     bool isInsertMode() const;
+
     void processNormalMode();
     void resetNormalMode();
     void processInsertMode();
     void executeCommand();
+
+    void handleCopy();
+    void handleDelete();
+    void handlePaste();
+    void handleCommandEdit();
+
     uint32_t parseMultiplier(bool forceOne = true);
     void saveFile(std::string fname) const;
-
 
     Mode mode;
     char lastChar;
