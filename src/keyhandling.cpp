@@ -77,7 +77,7 @@ void KeyHandling::resetNormalMode()
     Terminal::get()->resetTemp();
 }
 
-uint32_t KeyHandling::parseMultiplier()
+uint32_t KeyHandling::parseMultiplier(bool forceOne)
 {
     uint32_t res = 0;
     bool first = true;
@@ -88,7 +88,7 @@ uint32_t KeyHandling::parseMultiplier()
                 res *= 10;
             }
             first = false;
-            res += c - ('0');
+            res += c - '0';
         } else {
             if (res != 0) {
                 stack = substrSafe(stack, i);
@@ -97,7 +97,7 @@ uint32_t KeyHandling::parseMultiplier()
         }
         ++i;
     }
-    if (res == 0) res = 1;
+    if (forceOne && res == 0) res = 1;
     stack = "";
     return res;
 }
@@ -178,8 +178,10 @@ void KeyHandling::processNormalMode()
         operation = Operation::Copy;
     } else if (lastChar == '$') {
         editor::Buffer::getCurrent()->cursorRight(editor::Buffer::getCurrent()->line().length());
-    } else if (lastChar == '0') {
+    } else if (stack.empty() && lastChar == '0') {
         editor::Buffer::getCurrent()->cursorLeft(editor::Buffer::getCurrent()->line().length());
+    } else if (lastChar == 'G') {
+        editor::Buffer::getCurrent()->gotoY(parseMultiplier(false));
     } else if (lastChar == 'p') {
         uint32_t cnt = parseMultiplier();
         for (uint32_t c = 0; c < cnt; ++c) {

@@ -37,6 +37,7 @@ It should work great with my current Vim workflows, and support most of the usef
 ## Design
 
 - Utilize C++ strings, vectors, etc. as much as possible
+- Internally support only UTF-8
 - Separate buffers, terminal handling and key press logic
 
 ## TODO

@@ -52,6 +52,7 @@ public:
     uint32_t y() const { return posY; }
     uint32_t y(uint32_t height) const { return posY - row; }
     bool atEnd() const { return posY == data.size() - 1; }
+    void gotoY(uint32_t y = 0);
 
     static uint32_t cnt() {
         return buffers.size();

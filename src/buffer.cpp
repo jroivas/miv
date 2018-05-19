@@ -109,6 +109,12 @@ uint32_t Buffer::lineLength() const
     return utf8_length(data[posY]);
 }
 
+void Buffer::gotoY(uint32_t y)
+{
+    if (y == 0 || y > data.size()) y = data.size();
+    posY = y - 1;
+}
+
 const std::vector<std::string> Buffer::copyLines(uint32_t cnt) const
 {
     std::vector<std::string> res;

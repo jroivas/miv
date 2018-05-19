@@ -43,7 +43,7 @@ private:
     void resetNormalMode();
     void processInsertMode();
     void executeCommand();
-    uint32_t parseMultiplier();
+    uint32_t parseMultiplier(bool forceOne = true);
     void saveFile(std::string fname) const;
 
 
