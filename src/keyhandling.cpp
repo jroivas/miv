@@ -61,7 +61,9 @@ void KeyHandling::saveFile(std::string fname) const
 
 void KeyHandling::executeCommand()
 {
-    if (substrSafe(stack, 0, 2) == "q") {
+    if (substrSafe(stack, 0, 1) == "q") {
+        status = editor::Status::Quit;
+    } else if (substrSafe(stack, 0, 2) == "q!") {
         status = editor::Status::Quit;
     } else if (substrSafe(stack, 0, 2) == "w ") {
         saveFile(editor::trim_copy(substrSafe(stack, 2)));
@@ -70,6 +72,13 @@ void KeyHandling::executeCommand()
             saveFile(editor::Buffer::getCurrent()->filename());
         } else Terminal::get()->setError("No file name");
         if (substrSafe(stack, 1, 1) == "q") status = editor::Status::Quit;
+    } else if (substrSafe(stack, 0, 3) == "vi ") {
+        std::string fname = editor::trim_copy(substrSafe(stack, 3));
+        if (!fname.empty()) Buffer::setCurrent(new Buffer(fname));
+    } else if (substrSafe(stack, 0, 2) == "bn" || substrSafe(stack, 0, 5) == "bnext") {
+        Buffer::next();
+    } else if (substrSafe(stack, 0, 2) == "bp" || substrSafe(stack, 0, 5) == "bprev") {
+        Buffer::prev();
     } else Terminal::get()->setError("Unknown command: " + stack);
 }
 

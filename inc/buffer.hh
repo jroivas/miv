@@ -14,6 +14,7 @@ public:
     ~Buffer();
 
     static Buffer *getCurrent();
+    static bool setCurrent(Buffer *);
 
     bool readFile(std::string filename);
     bool writeFile(std::string filename);

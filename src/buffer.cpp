@@ -49,6 +49,17 @@ Buffer *Buffer::getCurrent()
     return buffers[index];
 }
 
+bool Buffer::setCurrent(Buffer *buf)
+{
+    for (size_t i = 0; i < buffers.size(); ++i) {
+        if (buffers[i] == buf) {
+            index = i;
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Buffer::readFile(std::string filename)
 {
     data.erase(data.begin(), data.end());
