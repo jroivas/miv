@@ -2,6 +2,7 @@
 #include "tools.hh"
 #include <fstream>
 #include <utf8.h>
+#include <algorithm>
 
 using editor::Buffer;
 
@@ -15,6 +16,7 @@ Buffer::Buffer() :
     row(0),
     tabSize(8),
     tabsToSpaces(false),
+    //tabsToSpaces(true),
     lineEnding("\n")
 {
     buffers.push_back(this);
@@ -109,6 +111,7 @@ void Buffer::deleteLine(uint32_t cnt)
         if (posY < origY) break;
         --cnt;
     }
+    sanitizePos();
 }
 
 const std::string Buffer::line() const
@@ -153,10 +156,11 @@ const std::vector<std::string> Buffer::copyLinesUp(uint32_t cnt) const
     return res;
 }
 
-void Buffer::sanitizePos()
+void Buffer::sanitizePos(bool expand)
 {
     uint32_t ll = lineLength();
-    posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : ll);
+    if (expand) posX = std::min<uint32_t>(posX, ll);
+    else posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : ll);
     posY = std::min<uint32_t>(posY, data.size() - 1);
 }
 
@@ -270,7 +274,6 @@ void Buffer::cursorWord(uint32_t cnt)
 void Buffer::cursorWordBack(uint32_t cnt)
 {
     std::string nowline = line();
-    uint32_t ll = utf8_length(nowline);
     if (posX == 0 && posY > 0) {
         --posY;
         posX = lineLength();
@@ -315,12 +318,60 @@ void Buffer::deleteChars(uint32_t cnt)
     sanitizePos();
 }
 
+std::string Buffer::tabsToSpace(const std::string &d) const
+{
+    if (!tabsToSpaces) return d;
+/*
+    std::string l = line();
+
+    uint32_t res = 0;
+    uint32_t pos = 0;
+    for (uint32_t p = 0; p < posX; ++p) {
+        char c = utf8_at(l, p);
+        if (c == '\t') {
+            ++pos;
+            while (pos % tabSize != 0) {
+                ++pos;
+                ++res;
+            }
+        } else {
+            ++pos;
+        }
+    }
+    return res;
+*/
+    std::string res;
+    for (char c : d) {
+        if (c == '\t') {
+            res += spaces(tabSize);
+        } else res += c;
+    }
+    return res;
+}
+
 void Buffer::append(std::string d)
 {
     std::string l = line();
-    updateLine(substrSafe(l, 0, posX) + d + substrSafe(l, posX));
-    posX += utf8_length(d);
-    sanitizePos();
+    std::string pre = substrSafe(l, 0, posX);
+    std::string post = substrSafe(l, posX);
+    std::string d2;
+
+    uint32_t ld = utf8_length(d);
+    for (uint32_t f = 0; f < ld; ++f) {
+        std::string c = utf8_at_str(d, f);
+        if (c == "\t") {
+            uint32_t origPos = posX;
+            ++posX;
+            while (posX % tabSize != 0)  ++posX;
+            d2 += spaces(posX - origPos);
+        } else {
+            d2 += c;
+            ++posX;
+        }
+    }
+
+    updateLine(pre + d2 + post);
+    sanitizePos(true);
 }
 
 void Buffer::append(char d)

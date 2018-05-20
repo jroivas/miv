@@ -81,6 +81,7 @@ public:
     static Buffer* newBuffer() {
         return new Buffer();
     }
+    std::string tabsToSpace(const std::string &d) const;
 
 private:
     std::vector<std::string> data;
@@ -90,7 +91,7 @@ private:
     uint32_t tabSize;
     bool tabsToSpaces;
 
-    void sanitizePos();
+    void sanitizePos(bool expand = false);
 
     std::string spaces(uint32_t cnt) const;
     std::string handleSpecial(std::string line) const;

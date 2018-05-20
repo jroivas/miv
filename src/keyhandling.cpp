@@ -274,6 +274,7 @@ void KeyHandling::processInsertMode()
         editor::Buffer::getCurrent()->deleteChars();
 */
     } else {
+        //log("CHR", std::to_string((int)lastChar));
         editor::Buffer::getCurrent()->append(lastChar);
     }
 }

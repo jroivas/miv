@@ -32,6 +32,7 @@ It should work great with my current Vim workflows, and support most of the usef
 - Copy lines `yy`, `yj`, `yk`
 - Copy characters `yh`, `yl`, `x`
 - Paste copied line or characters
+- Buffers `:vi filename`, `:bn`, `:bnext`, `:bp`, `:bprev`
 - Reading files contents to buffer from command line
 - Saving `:w`
 - Quitting! `:q`, `:wq`
