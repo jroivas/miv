@@ -1,4 +1,4 @@
-project('ahead_class_vm', 'cpp')
+project('miv', 'cpp')
 
 add_global_arguments('-std=c++11', language : 'cpp')
 add_global_arguments('-fPIC', language : 'cpp')
