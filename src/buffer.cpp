@@ -16,7 +16,6 @@ Buffer::Buffer() :
     row(0),
     tabSize(8),
     tabsToSpaces(false),
-    //tabsToSpaces(true),
     lineEnding("\n")
 {
     buffers.push_back(this);
@@ -70,7 +69,9 @@ bool Buffer::readFile(std::string filename)
     if (!fd.is_open()) return false;
 
     std::string tmp;
-    while (std::getline(fd, tmp)) data.push_back(tmp);
+    while (std::getline(fd, tmp)) {
+        data.push_back(tabsToSpace(tmp));
+    }
     fd.close();
     return true;
 }
@@ -260,7 +261,10 @@ void Buffer::cursorWord(uint32_t cnt)
         char n = utf8_at(nowline, p);
         if (delimiters.find(n) != std::string::npos) {
             posX = p;
-            if (n == ' ') ++posX;
+            while (delimiters.find(n) != std::string::npos) {
+                ++posX;
+                n = utf8_at(nowline, posX);
+            }
             sanitizePos();
             if (--cnt > 0) cursorWord(cnt);
             return;
@@ -284,7 +288,8 @@ void Buffer::cursorWordBack(uint32_t cnt)
         char n = utf8_at(nowline, p);
         if (delimiters.find(n) != std::string::npos) {
             posX = p;
-            if (n == ' ' && posX > 0) ++posX;
+            char on = n;
+            if (posX > 0) ++posX;
             sanitizePos();
             if (posX != prevPos) {
                 if (--cnt > 0) cursorWordBack(cnt);
@@ -294,7 +299,7 @@ void Buffer::cursorWordBack(uint32_t cnt)
     }
     posX = 0;
     sanitizePos();
-    if (--cnt > 0) cursorWord(cnt);
+    if (--cnt > 0) cursorWordBack(cnt);
 }
 
 void Buffer::backspaceChars(uint32_t cnt)
@@ -321,30 +326,21 @@ void Buffer::deleteChars(uint32_t cnt)
 std::string Buffer::tabsToSpace(const std::string &d) const
 {
     if (!tabsToSpaces) return d;
-/*
-    std::string l = line();
+    std::string res;
 
-    uint32_t res = 0;
+    uint32_t ll = utf8_length(d);
     uint32_t pos = 0;
-    for (uint32_t p = 0; p < posX; ++p) {
-        char c = utf8_at(l, p);
-        if (c == '\t') {
+    for (uint32_t f = 0; f < ll; ++f) {
+        std::string c = utf8_at_str(d, f);
+        if (c == "\t") {
+            uint32_t origPos = pos;
             ++pos;
-            while (pos % tabSize != 0) {
-                ++pos;
-                ++res;
-            }
+            while (pos % tabSize != 0) ++pos;
+            res += spaces(pos - origPos);
         } else {
+            res += c;
             ++pos;
         }
-    }
-    return res;
-*/
-    std::string res;
-    for (char c : d) {
-        if (c == '\t') {
-            res += spaces(tabSize);
-        } else res += c;
     }
     return res;
 }

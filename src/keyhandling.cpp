@@ -263,9 +263,7 @@ void KeyHandling::processInsertMode()
     if (lastChar == KEY_ESC) {
         mode = Mode::NormalMode;
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
-        if (editor::Buffer::getCurrent()->atEnd()) {
-            editor::Buffer::getCurrent()->addLine("");
-        }
+        editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
     } else if (lastChar == KEY_BACKSPACE) {
         editor::Buffer::getCurrent()->backspaceChars();
