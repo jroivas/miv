@@ -4,6 +4,7 @@ miv = executable('miv',
         'keyhandling.cpp',
         'buffer.cpp',
         'tools.cpp',
+        'undo.cpp',
         'main.cpp'
     ],
     include_directories: [
