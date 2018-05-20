@@ -7,6 +7,7 @@ using editor::Buffer;
 
 std::vector<Buffer*> Buffer::buffers;
 uint32_t Buffer::index = 0;
+static const std::string delimiters = " ,.:;\\/-\t";
 
 Buffer::Buffer() :
     posX(0),
@@ -240,18 +241,46 @@ void Buffer::cursorWord(uint32_t cnt)
         posX = 0;
         nowline = line();
     }
-    static const std::string delimiters = " ,.:;\\/-\t";
     for (uint32_t p = posX + 1; p < ll; ++p) {
         char n = utf8_at(nowline, p);
         if (delimiters.find(n) != std::string::npos) {
             posX = p;
             if (n == ' ') ++posX;
             sanitizePos();
+            if (--cnt > 0) cursorWord(cnt);
             return;
         }
     }
     ++posY;
     posX = 0;
+    if (--cnt > 0) cursorWord(cnt);
+}
+
+void Buffer::cursorWordBack(uint32_t cnt)
+{
+    std::string nowline = line();
+    uint32_t ll = utf8_length(nowline);
+    if (posX == 0 && posY > 0) {
+        --posY;
+        posX = lineLength();
+        nowline = line();
+    }
+    uint32_t prevPos = posX;
+    for (uint32_t p = posX - 1; p > 0; --p) {
+        char n = utf8_at(nowline, p);
+        if (delimiters.find(n) != std::string::npos) {
+            posX = p;
+            if (n == ' ' && posX > 0) ++posX;
+            sanitizePos();
+            if (posX != prevPos) {
+                if (--cnt > 0) cursorWordBack(cnt);
+                return;
+            }
+        }
+    }
+    posX = 0;
+    sanitizePos();
+    if (--cnt > 0) cursorWord(cnt);
 }
 
 void Buffer::backspaceChars(uint32_t cnt)

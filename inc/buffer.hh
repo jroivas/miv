@@ -47,6 +47,7 @@ public:
     void pageDown(uint32_t pageSize, uint32_t cnt = 1);
 
     void cursorWord(uint32_t cnt = 1);
+    void cursorWordBack(uint32_t cnt = 1);
 
     void backspaceChars(uint32_t cnt = 1);
     void deleteChars(uint32_t cnt = 1);

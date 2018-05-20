@@ -219,6 +219,8 @@ void KeyHandling::processNormalMode()
         handlePaste();
     } else if (lastChar == 'w') {
         editor::Buffer::getCurrent()->cursorWord(parseMultiplier());
+    } else if (lastChar == 'b') {
+        editor::Buffer::getCurrent()->cursorWordBack(parseMultiplier());
     } else if (lastChar == 'd') {
         operation = Operation::Delete;
     } else if (lastChar == 'x') {

@@ -22,9 +22,11 @@ It should work great with my current Vim workflows, and support most of the usef
 
 - Normal mode, insert mode
 - Basic movement with `h`, `j`, `k`, `l`
+- Word forward and back `b`, `w`
 - Insert, append `i`, `a`
 - New line `o`, `O`
 - Begin and end of line `0`, `$` (only cursor positioning for now)
+- Goto to line `G`
 - Delete lines `dd`
 - Delete characters `dh`, `dl`
 - Copy lines `yy`, `yj`, `yk`
