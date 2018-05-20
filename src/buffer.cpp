@@ -115,6 +115,7 @@ void Buffer::gotoY(uint32_t y)
 {
     if (y == 0 || y > data.size()) y = data.size();
     posY = y - 1;
+    sanitizePos();
 }
 
 const std::vector<std::string> Buffer::copyLines(uint32_t cnt) const
