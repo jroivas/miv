@@ -162,7 +162,8 @@ void Buffer::sanitizePos(bool expand)
     uint32_t ll = lineLength();
     if (expand) posX = std::min<uint32_t>(posX, ll);
     else posX = std::min<uint32_t>(posX, ll > 0 ? ll - 1 : ll);
-    posY = std::min<uint32_t>(posY, data.size() - 1);
+    if (data.size() > 0) posY = std::min<uint32_t>(posY, data.size() - 1);
+    else posY = 0;
 }
 
 uint32_t Buffer::tabs() const
