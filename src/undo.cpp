@@ -19,3 +19,13 @@ void UndoableAction::setPostPos(uint32_t x, uint32_t y)
     postX = x;
     postY = y;
 }
+
+void UndoableAction::setLines(std::vector<std::string> l)
+{
+    lines = l;
+}
+
+void UndoableAction::addLine(std::string line)
+{
+    lines.push_back(line);
+}

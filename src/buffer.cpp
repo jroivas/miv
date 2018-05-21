@@ -288,7 +288,6 @@ void Buffer::cursorWordBack(uint32_t cnt)
         char n = utf8_at(nowline, p);
         if (delimiters.find(n) != std::string::npos) {
             posX = p;
-            char on = n;
             if (posX > 0) ++posX;
             sanitizePos();
             if (posX != prevPos) {
