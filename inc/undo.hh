@@ -50,6 +50,7 @@ public:
     UndoableAction action;
     UndoNode *getNext() const;
     UndoNode *getPrev() const;
+    std::vector<UndoNode*> child() { return next; }
 
 private:
     std::vector<UndoNode*> next;
@@ -60,12 +61,15 @@ class UndoTree
 {
 public:
     UndoTree();
+    ~UndoTree();
 
     void add(UndoableAction action);
     UndoableAction undo();
     UndoableAction redo();
 
 private:
+    void deleteNodes(UndoNode *n);
+    UndoNode *parent;
     UndoNode *current;
 };
 

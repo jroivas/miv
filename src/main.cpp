@@ -2,6 +2,7 @@
 #include "keyhandling.hh"
 #include "buffer.hh"
 #include <iostream>
+#include "undo.hh"
 
 int main(int argc, char **argv)
 {

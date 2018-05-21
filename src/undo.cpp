@@ -33,8 +33,42 @@ void UndoableAction::addLine(std::string line)
 }
 
 UndoTree::UndoTree() :
+    parent(nullptr),
     current(nullptr)
 {
+}
+
+UndoTree::~UndoTree()
+{
+    deleteNodes(parent);
+}
+
+#include <iostream>
+void UndoTree::deleteNodes(UndoNode *node)
+{
+    if (node == nullptr) return;
+    for (UndoNode *n : node->child()) {
+        deleteNodes(n);
+    }
+    delete node;
+}
+
+void UndoTree::add(UndoableAction action)
+{
+    current = new UndoNode(action, current);
+    if (parent == nullptr) parent = current;
+}
+
+UndoableAction UndoTree::undo()
+{
+    current = current->getPrev();
+    return current->action;
+}
+
+UndoableAction UndoTree::redo()
+{
+    current = current->getNext();
+    return current->action;
 }
 
 UndoNode::UndoNode(UndoableAction a, UndoNode *p) :
