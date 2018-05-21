@@ -245,8 +245,15 @@ void KeyHandling::processNormalMode()
         mode = Mode::InsertMode;
     } else if (lastChar == 'a') {
         editor::Buffer::getCurrent()->cursorAppend();
+        UndoableAction act(ActionScope::InsertMode, ActionType::Both);
+        editor::Buffer::getCurrent()->undo()->add(act);
+        editor::Buffer::getCurrent()->undoRecordPrePos();
         mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
+        //editor::Buffer::getCurrent()->undos()->last()
+        UndoableAction act(ActionScope::InsertMode, ActionType::Both);
+        editor::Buffer::getCurrent()->undo()->add(act);
+        editor::Buffer::getCurrent()->undoRecordPrePos();
         mode = Mode::InsertMode;
     } else if (lastChar == KEY_CTRL_F) {
         editor::Buffer::getCurrent()->pageDown(editor::Terminal::get()->getHeight(), parseMultiplier());

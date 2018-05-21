@@ -427,3 +427,13 @@ const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height)
 
     return res;
 }
+
+void Buffer::undoRecordPrePos()
+{
+    undos.last()->setPrePos(posX, posY);
+}
+
+void Buffer::undoRecordPostPos()
+{
+    undos.last()->setPostPos(posX, posY);
+}

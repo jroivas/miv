@@ -71,6 +71,13 @@ UndoableAction UndoTree::redo()
     return current->action;
 }
 
+UndoableAction *UndoTree::last()
+{
+    if (current == nullptr) return nullptr;
+    return &current->action;
+}
+
+
 UndoNode::UndoNode(UndoableAction a, UndoNode *p) :
     action(a),
     prev(p)

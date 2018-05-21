@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include "undo.hh"
 
 namespace editor {
 
@@ -83,6 +84,10 @@ public:
     }
     std::string tabsToSpace(const std::string &d) const;
 
+    UndoTree *undo() { return &undos; }
+    void undoRecordPrePos();
+    void undoRecordPostPos();
+
 private:
     std::vector<std::string> data;
     uint32_t posX;
@@ -99,6 +104,8 @@ private:
     std::string lineEnding;
     std::string fileName;
     std::string appendBuffer;
+
+    UndoTree undos;
 
     static void removeBuffer(Buffer *);
     static std::vector<Buffer*> buffers;

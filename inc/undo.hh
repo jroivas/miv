@@ -9,7 +9,8 @@ namespace editor {
 enum class ActionScope
 {
     Inline,
-    MultiLine
+    MultiLine,
+    InsertMode
 };
 
 enum class ActionType
@@ -64,6 +65,7 @@ public:
     ~UndoTree();
 
     void add(UndoableAction action);
+    UndoableAction *last();
     UndoableAction undo();
     UndoableAction redo();
 
