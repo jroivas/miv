@@ -40,4 +40,33 @@ private:
     std::vector<std::string> lines;
 };
 
+class UndoNode
+{
+public:
+    UndoNode(UndoableAction action, UndoNode *prev);
+
+    void newNext(UndoNode *node);
+
+    UndoableAction action;
+    UndoNode *getNext() const;
+    UndoNode *getPrev() const;
+
+private:
+    std::vector<UndoNode*> next;
+    UndoNode *prev;
+};
+
+class UndoTree
+{
+public:
+    UndoTree();
+
+    void add(UndoableAction action);
+    UndoableAction undo();
+    UndoableAction redo();
+
+private:
+    UndoNode *current;
+};
+
 }
