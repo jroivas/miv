@@ -84,9 +84,12 @@ public:
     }
     std::string tabsToSpace(const std::string &d) const;
 
-    UndoTree *undo() { return &undos; }
+    void undoAdd(UndoableAction act);
     void undoRecordPrePos();
     void undoRecordPostPos();
+    void undoApplyLine();
+
+    void undoDump() const { undos.dump(); }
 
 private:
     std::vector<std::string> data;

@@ -9,6 +9,7 @@ using editor::Terminal;
 
 static struct termios original_termios;
 static Terminal *terminal = nullptr;
+static bool enabled = false;
 
 #define ESCAPE_KEY "\x1b"
 static const std::string CMD_CLEAR_SCREEN = ESCAPE_KEY "[2J";
@@ -46,6 +47,7 @@ std::string Terminal::cursorPos(int x, int y)
 
 void Terminal::enableRawMode()
 {
+    enabled = true;
     if (tcgetattr(STDIN_FILENO, &original_termios) == -1) die("Can't read terminal attributes");
     atexit(&Terminal::disableRawMode);
     raw = original_termios;
@@ -81,7 +83,9 @@ void Terminal::setTimeout()
 }
 
 void Terminal::disableRawMode() {
+    if (!enabled) return;
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) Terminal::get()->die("Can't restore terminal settings");
+    enabled = false;
 }
 
 void Terminal::die(std::string s) {

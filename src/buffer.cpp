@@ -94,7 +94,8 @@ void Buffer::addLine(std::string line)
 
 void Buffer::insertLine(std::string line)
 {
-    data.insert(data.begin() + posY + 1, line);
+    if (data.empty()) data.push_back(line);
+    else data.insert(data.begin() + posY + 1, line);
 }
 
 void Buffer::updateLine(std::string line)
@@ -429,6 +430,12 @@ const std::vector<std::string> Buffer::viewport(uint32_t width, uint32_t height)
     return res;
 }
 
+void Buffer::undoAdd(UndoableAction act)
+{
+    undos.add(act);
+    undoRecordPrePos();
+}
+
 void Buffer::undoRecordPrePos()
 {
     undos.last()->setPrePos(posX, posY);
@@ -437,4 +444,9 @@ void Buffer::undoRecordPrePos()
 void Buffer::undoRecordPostPos()
 {
     undos.last()->setPostPos(posX, posY);
+}
+
+void Buffer::undoApplyLine()
+{
+    undos.last()->addLine(line());
 }

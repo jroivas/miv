@@ -29,6 +29,32 @@ public:
     void addLine(std::string line);
     void setLines(std::vector<std::string> line);
 
+    const std::string getScopeName() const {
+        switch (scope) {
+            default:
+            case ActionScope::Inline: return "Inline";
+            case ActionScope::MultiLine: return "Multiline";
+            case ActionScope::InsertMode: return "InsertMode";
+        }
+    }
+    const std::string getTypeName() const {
+        switch (type) {
+            default:
+            case ActionType::Addition: return "Addition";
+            case ActionType::Removal: return "Removal";
+            case ActionType::Both: return "Addition+Removal";
+        }
+    }
+    const ActionScope getScope() const { return scope; }
+    const ActionType getType() const { return type; }
+
+    uint32_t getPreX() const { return preX; }
+    uint32_t getPreY() const { return preY; }
+    uint32_t getPostX() const { return postX; }
+    uint32_t getPostY() const { return postY; }
+
+    std::vector<std::string> getLines() const { return lines; }
+
 private:
     ActionScope scope;
     ActionType type;
@@ -69,7 +95,10 @@ public:
     UndoableAction undo();
     UndoableAction redo();
 
+    void dump() const;
+
 private:
+    void dump(UndoNode *n) const;
     void deleteNodes(UndoNode *n);
     UndoNode *parent;
     UndoNode *current;

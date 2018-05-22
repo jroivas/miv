@@ -235,25 +235,22 @@ void KeyHandling::processNormalMode()
     } else if (lastChar == 'x') {
         editor::Buffer::getCurrent()->deleteChars(parseMultiplier());
     } else if (lastChar == 'o') {
+        editor::Buffer::getCurrent()->undoAdd(UndoableAction(ActionScope::InsertMode, ActionType::Both));
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
         mode = Mode::InsertMode;
     } else if (lastChar == 'O') {
+        editor::Buffer::getCurrent()->undoAdd(UndoableAction(ActionScope::InsertMode, ActionType::Both));
         editor::Buffer::getCurrent()->cursorUp();
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
         mode = Mode::InsertMode;
     } else if (lastChar == 'a') {
         editor::Buffer::getCurrent()->cursorAppend();
-        UndoableAction act(ActionScope::InsertMode, ActionType::Both);
-        editor::Buffer::getCurrent()->undo()->add(act);
-        editor::Buffer::getCurrent()->undoRecordPrePos();
+        editor::Buffer::getCurrent()->undoAdd(UndoableAction(ActionScope::InsertMode, ActionType::Both));
         mode = Mode::InsertMode;
     } else if (lastChar == 'i') {
-        //editor::Buffer::getCurrent()->undos()->last()
-        UndoableAction act(ActionScope::InsertMode, ActionType::Both);
-        editor::Buffer::getCurrent()->undo()->add(act);
-        editor::Buffer::getCurrent()->undoRecordPrePos();
+        editor::Buffer::getCurrent()->undoAdd(UndoableAction(ActionScope::InsertMode, ActionType::Both));
         mode = Mode::InsertMode;
     } else if (lastChar == KEY_CTRL_F) {
         editor::Buffer::getCurrent()->pageDown(editor::Terminal::get()->getHeight(), parseMultiplier());
@@ -268,8 +265,11 @@ void KeyHandling::processNormalMode()
 void KeyHandling::processInsertMode()
 {
     if (lastChar == KEY_ESC) {
+        editor::Buffer::getCurrent()->undoApplyLine();
+        editor::Buffer::getCurrent()->undoRecordPostPos();
         mode = Mode::NormalMode;
     } else if (lastChar == KEY_ENTER || lastChar == KEY_RETURN) {
+        editor::Buffer::getCurrent()->undoApplyLine();
         editor::Buffer::getCurrent()->insertLine("");
         editor::Buffer::getCurrent()->cursorDown();
     } else if (lastChar == KEY_BACKSPACE) {

@@ -1,6 +1,7 @@
 #include "terminal.hh"
 #include "keyhandling.hh"
 #include "buffer.hh"
+#include "undo.hh"
 #include <iostream>
 
 int main(int argc, char **argv)
@@ -21,6 +22,9 @@ int main(int argc, char **argv)
     }
     term->clearScreen();
     term->flush();
+
+    term->disableRawMode();
+    //buffer.undoDump();
 
     return 0;
 }

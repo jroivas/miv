@@ -6,7 +6,11 @@ using editor::UndoTree;
 
 UndoableAction::UndoableAction(ActionScope s, ActionType t) :
     scope(s),
-    type(t)
+    type(t),
+    preX(0),
+    preY(0),
+    postX(0),
+    postY(0)
 {
 }
 
@@ -101,4 +105,30 @@ UndoNode *UndoNode::getNext() const
 {
     if (next.empty()) return nullptr;
     return next.back();
+}
+
+void UndoTree::dump(UndoNode *n) const
+{
+    if (n == nullptr) return;
+    std::cout << "--\n";
+    std::cout << "Action:\n";
+
+    std::string scope = "Inline";
+    std::cout << " Scope: " << n->action.getScopeName() << "\n";
+    std::cout << "  Type: " << n->action.getTypeName() << "\n";
+    std::cout << " Start: " << n->action.getPreY() << "," << n->action.getPreX() << " (line,pos)\n";
+    std::cout << "   End: " << n->action.getPostY() << "," << n->action.getPostX() << " (line,pos)\n";
+    std::cout << " Lines:\n";
+    for (std::string l : n->action.getLines()) {
+        std::cout << " " << l << "\n";
+    }
+
+    for (UndoNode *c : n->child()) {
+        dump(c);
+    }
+}
+
+void UndoTree::dump() const
+{
+    dump(parent);
 }
